@@ -56,33 +56,7 @@ const Dailyupdate = () => {
                         <strong>Date: {formattedDate}</strong>
                     </Text>
                 </Flex>
-                <form onSubmit=''>
-                    <Flex align='center'>
-                        <Select
-                            placeholder='- Select category -'
-                            value={selectedCategory}
-                            onChange={handleCategoryChange}
-                            mr={2}
-                            width='220px'
-                        >
-                            {category.map((ind_category) => (
-                                <option
-                                    key={ind_category._id}
-                                    value={ind_category.category_name}
-                                >
-                                    {ind_category.category_name}
-                                </option>
-                            ))}
-                        </Select>
-                        <Input
-                            name='updateText'
-                            placeholder='Add daily update'
-                        />
-                        <Button type='submit' colorScheme='teal' hidden={true}>
-                            Add Update
-                        </Button>
-                    </Flex>
-                </form>
+
                 {dist_categories !== undefined && (
                     <UpdateList dist_categories={dist_categories} />
                 )}

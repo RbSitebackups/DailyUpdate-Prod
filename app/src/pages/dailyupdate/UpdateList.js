@@ -15,7 +15,8 @@ import {
 import { AddIcon, MinusIcon } from '@chakra-ui/icons'
 
 const UpdateList = ({ dist_categories }) => {
-    const { isLoading, dailyUpdates } = useAppContext()
+    const { isLoading, dailyUpdates, addUpdate, fetchUpdates, selectedClient } =
+        useAppContext()
     const [checkboxStates, setCheckboxStates] = useState({})
     const [showAddNewMap, setShowAddNewMap] = useState({})
     const [expandedCategories, setExpandedCategories] = useState({
@@ -23,6 +24,9 @@ const UpdateList = ({ dist_categories }) => {
     })
     const [expandedAll, setExpandedAll] = useState(false) // State to track overall expand/collapse state for all categories
     const [showLessUpdates, setShowLessUpdates] = useState({})
+    const [checkAllVisible, setCheckAllVisible] = useState(false)
+    const [updatesToShow, setUpdatesToShow] = useState({})
+    const defaultNoUpdates = 3
 
     useEffect(() => {
         if (dailyUpdates) {
@@ -42,13 +46,15 @@ const UpdateList = ({ dist_categories }) => {
         }))
     }
 
-    const [updatesToShow, setUpdatesToShow] = useState({})
-
     const handleLoadMore = (categoryId) => {
-        setCheckboxStates({}) // Reset checkbox states to avoid issues with incorrect updates being checked when loading more.
         setUpdatesToShow((prevState) => ({
             ...prevState,
-            [categoryId]: (prevState[categoryId] || 3) + 3,
+            [categoryId]:
+                (prevState[categoryId] || defaultNoUpdates) + defaultNoUpdates,
+        }))
+        setShowLessUpdates((prevState) => ({
+            ...prevState,
+            [categoryId]: prevState[categoryId] || defaultNoUpdates,
         }))
     }
     const handleAddNewToggle = (categoryId) => {
@@ -62,20 +68,94 @@ const UpdateList = ({ dist_categories }) => {
             ...prevState,
             [categoryId]: !prevState[categoryId],
         }))
+
+        // Update the expandedAll state based on whether all categories are expanded
+        const allCategoriesExpanded = dist_categories.every(
+            (category) => expandedCategories[category.category_id]
+        )
+        setExpandedAll(allCategoriesExpanded)
     }
     const handleExpandAll = () => {
         setExpandedAll(true)
+        setExpandedCategories((prevState) => {
+            const updatedExpandedCategories = {}
+            dist_categories.forEach((category) => {
+                updatedExpandedCategories[category.category_id] = true
+            })
+            return updatedExpandedCategories
+        })
     }
 
     const handleCollapseAll = () => {
         setExpandedAll(false)
+        setExpandedCategories((prevState) => {
+            const updatedExpandedCategories = {}
+            dist_categories.forEach((category) => {
+                updatedExpandedCategories[category.category_id] = false
+            })
+            return updatedExpandedCategories
+        })
     }
 
     const handleShowLess = (categoryId) => {
-        setShowLessUpdates((prevShowLessUpdates) => ({
-            ...prevShowLessUpdates,
-            [categoryId]: 3, // Show 3 updates when "Show Less" is clicked
+        const updatesToShowValue =
+            (updatesToShow[categoryId] || defaultNoUpdates) - defaultNoUpdates
+        if (updatesToShowValue > defaultNoUpdates) {
+            setUpdatesToShow((prevState) => ({
+                ...prevState,
+                [categoryId]: updatesToShowValue,
+            }))
+        } else {
+            setUpdatesToShow((prevState) => ({
+                ...prevState,
+                [categoryId]: defaultNoUpdates, // Always show at least 2 updates
+            }))
+        }
+    }
+
+    // Add a new state to hold the text of the new update
+    const [newUpdateText, setNewUpdateText] = useState({})
+
+    const handleNewUpdateChange = (categoryId, text) => {
+        setNewUpdateText((prevState) => ({
+            ...prevState,
+            [categoryId]: text,
         }))
+    }
+
+    const handleAddUpdate = (e, categoryId) => {
+        e.preventDefault()
+        // Here you can call the addUpdate function from the appContext and pass the category id and the new update text
+        const newText = newUpdateText[categoryId]
+        if (newText && newText.trim() !== '') {
+            addUpdate(categoryId, newText)
+            fetchUpdates(selectedClient.ClientID)
+            handleAddNewToggle(categoryId) // Hide the input field after adding the update
+        }
+    }
+
+    const handleCheckAllToggle = (e) => {
+        const isChecked = e.target.checked
+
+        setCheckAllVisible(isChecked)
+        // Update the state of all visible checkboxes to the value of the "Check All" checkbox
+        const visibleUpdates = dailyUpdates.filter((update) => {
+            const categoryId = update.category_id
+            return (
+                expandedAll ||
+                expandedCategories[categoryId] ||
+                showLessUpdates[categoryId] > 0
+            )
+        })
+
+        const allVisibleUpdatesIds = visibleUpdates.map((update) => update._id)
+        setCheckboxStates((prevState) => {
+            const updatedStates = { ...prevState }
+            allVisibleUpdatesIds.forEach((updateId) => {
+                updatedStates[updateId] = isChecked
+            })
+            return updatedStates
+        })
     }
 
     if (isLoading || dailyUpdates === undefined) {
@@ -90,11 +170,25 @@ const UpdateList = ({ dist_categories }) => {
         <VStack spacing={4} align='stretch'>
             {/* Add Expand All and Collapse All buttons */}
             <Flex justify='' w='100%'>
-                <Button colorScheme='teal' onClick={handleExpandAll}>
+                <Checkbox
+                    colorScheme='teal'
+                    borderRadius={2}
+                    onChange={handleCheckAllToggle}
+                    isVisible={checkAllVisible}
+                >
+                    Check All
+                </Checkbox>
+                <Button
+                    ml='10px'
+                    colorScheme='teal'
+                    borderRadius={2}
+                    onClick={handleExpandAll}
+                >
                     Expand All
                 </Button>
                 <Button
                     ml='10px'
+                    borderRadius={2}
                     colorScheme='teal'
                     onClick={handleCollapseAll}
                 >
@@ -106,7 +200,7 @@ const UpdateList = ({ dist_categories }) => {
                     (update) => update.category_id === category.category_id
                 )
                 const updatesToShowValue =
-                    updatesToShow[category.category_id] || 3
+                    updatesToShow[category.category_id] || defaultNoUpdates
                 const isExpanded =
                     expandedAll || expandedCategories[category.category_id]
 
@@ -132,6 +226,7 @@ const UpdateList = ({ dist_categories }) => {
                             <Button
                                 size='xs'
                                 ml='20px'
+                                borderRadius={2}
                                 colorScheme='teal'
                                 variant='outline'
                                 leftIcon={
@@ -151,13 +246,36 @@ const UpdateList = ({ dist_categories }) => {
                             </Button>
                         </Flex>
                         {showAddNewMap[category.category_id] && (
-                            <Input
-                                name='add_update'
-                                mt={2}
-                                mb={2}
-                                placeholder='Enter new update...'
-                                // Implement the logic to handle adding the new update to the database
-                            />
+                            <form
+                                onSubmit={(e) =>
+                                    handleAddUpdate(e, category.category_id)
+                                }
+                            >
+                                <Input
+                                    name='add_update'
+                                    mb={2}
+                                    placeholder='Enter new update...'
+                                    value={
+                                        newUpdateText[category.category_id] ||
+                                        ''
+                                    }
+                                    onChange={(e) =>
+                                        handleNewUpdateChange(
+                                            category.category_id,
+                                            e.target.value
+                                        )
+                                    }
+                                />
+                                <Button
+                                    type='submit'
+                                    mt={2}
+                                    borderRadius={2}
+                                    hidden={true}
+                                    colorScheme='teal'
+                                >
+                                    Add Update
+                                </Button>
+                            </form>
                         )}
                         {isExpanded &&
                             updates
@@ -175,7 +293,7 @@ const UpdateList = ({ dist_categories }) => {
                                             pr='15px'
                                             mb='5px'
                                             size='lg'
-                                            colorScheme='green'
+                                            colorScheme='teal'
                                             isChecked={
                                                 checkboxStates[update._id] ||
                                                 false
@@ -204,9 +322,12 @@ const UpdateList = ({ dist_categories }) => {
                                 ))}
                         {isExpanded && updates.length > updatesToShowValue && (
                             <Button
+                                size='xs'
                                 mt={2}
+                                mr={2}
                                 variant='outline'
                                 colorScheme='teal'
+                                borderRadius={2}
                                 onClick={() =>
                                     handleLoadMore(category.category_id)
                                 }
@@ -214,20 +335,21 @@ const UpdateList = ({ dist_categories }) => {
                                 Load More
                             </Button>
                         )}
-                        {isExpanded &&
-                            showLessUpdates[category.category_id] > 0 && (
-                                // Show "Show Less" button only if the category is expanded and there are more updates displayed
-                                <Button
-                                    mt={2}
-                                    variant='outline'
-                                    colorScheme='teal'
-                                    onClick={() =>
-                                        handleShowLess(category.category_id)
-                                    }
-                                >
-                                    Show Less
-                                </Button>
-                            )}
+                        {isExpanded && updatesToShowValue > 3 && (
+                            // Show "Show Less" button only if the category is expanded and there are more updates displayed
+                            <Button
+                                size='xs'
+                                mt={2}
+                                variant='outline'
+                                colorScheme='teal'
+                                borderRadius={2}
+                                onClick={() =>
+                                    handleShowLess(category.category_id)
+                                }
+                            >
+                                Show Less
+                            </Button>
+                        )}
                     </Box>
                 )
             })}

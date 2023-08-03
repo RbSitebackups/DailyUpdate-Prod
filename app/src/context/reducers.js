@@ -43,6 +43,9 @@ import {
     GET_PROGRESS_CATEGORY_SUCCESS,
     FETCH_PROGRESS_BEGIN,
     FETCH_PROGRESS_SUCCESS,
+    CREATE_ADD_PROGRESS_BEGIN,
+    CREATE_ADD_PROGRESS_SUCCESS,
+    CREATE_ADD_PROGRESS_ERROR,
 } from './actions'
 
 import { initialState } from './appContext'
@@ -406,6 +409,32 @@ const reducers = (state, action) => {
             ...state,
             isLoading: false,
             dailyUpdates: action.payload.dailyUpdates,
+        }
+    }
+
+    if (action.type === CREATE_ADD_PROGRESS_BEGIN) {
+        return { ...state, isLoading: true }
+    }
+
+    if (action.type === CREATE_ADD_PROGRESS_SUCCESS) {
+        return {
+            ...state,
+            isLoading: false,
+            showAlert: true,
+            alertType: 'success',
+            alertText: 'Addeded successfully',
+            alertTitle: 'Update',
+        }
+    }
+
+    if (action.type === CREATE_ADD_PROGRESS_ERROR) {
+        return {
+            ...state,
+            isLoading: false,
+            showAlert: true,
+            alertType: 'error',
+            alertText: action.payload.msg,
+            alertTitle: 'Error',
         }
     }
 

@@ -47,6 +47,9 @@ import {
     GET_PROGRESS_CATEGORY_SUCCESS,
     FETCH_PROGRESS_BEGIN,
     FETCH_PROGRESS_SUCCESS,
+    CREATE_ADD_PROGRESS_BEGIN,
+    CREATE_ADD_PROGRESS_SUCCESS,
+    CREATE_ADD_PROGRESS_ERROR,
 } from './actions'
 
 const user = localStorage.getItem('user')
@@ -502,6 +505,27 @@ const AppProvider = ({ children }) => {
         clearAlert()
     }
 
+    const addUpdate = async (category_id, d_update) => {
+        const client_id = sessionStorage.getItem('ClientID')
+        dispatch({ type: CREATE_ADD_PROGRESS_BEGIN })
+        try {
+            await authFetch.post('/prog', {
+                category_id,
+                client_id,
+                d_update,
+            })
+            dispatch({ type: CREATE_ADD_PROGRESS_SUCCESS })
+            dispatch({ type: CLEAR_VALUES })
+        } catch (error) {
+            if (error.response.status === 401) return
+            dispatch({
+                type: CREATE_ADD_PROGRESS_ERROR,
+                payload: { msg: error.response.data.msg },
+            })
+        }
+        clearAlert()
+    }
+
     /* ################# PROGRESS END ################### */
 
     return (
@@ -533,6 +557,7 @@ const AppProvider = ({ children }) => {
                 getIndUser,
                 getDistinctCategories,
                 fetchUpdates,
+                addUpdate,
             }}
         >
             {children}
