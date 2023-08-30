@@ -8,6 +8,8 @@ import {
     Client,
     Userclient,
     Dailyupdate,
+    Edmschedule,
+    Listschedule,
 } from './pages'
 import { Stats, Profile, Setting, Changepassword } from './pages/dashboard'
 import SharedLayout from './layouts/SharedLayout'
@@ -35,6 +37,8 @@ function App() {
                     <Route path='/client' element={<Client />} />
                     <Route path='/userclient' element={<Userclient />} />
                     <Route path='/dailyupdate' element={<Dailyupdate />} />
+                    <Route path='/edmschedule' element={<Edmschedule />} />
+                    <Route path='/listschedule' element={<Listschedule />} />
                 </Route>
                 <Route path='/login' element={<Login />} />
                 <Route path='/landing' element={<Landing />} />

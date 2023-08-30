@@ -17,6 +17,7 @@ const CategorySchema = new mongoose.Schema({
         type: Boolean,
         default: 0,
     },
+    category_for: { type: String },
 })
 
 export default mongoose.model('tbl_category', CategorySchema)

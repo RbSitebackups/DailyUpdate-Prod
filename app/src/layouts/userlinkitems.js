@@ -7,6 +7,7 @@ import {
     MdOutlineKeyboardArrowUp,
     MdOutlineEditNote,
     MdFormatListBulletedAdd,
+    MdMarkEmailUnread,
     MdLogout,
 } from 'react-icons/md'
 import { HiOutlineCog6Tooth } from 'react-icons/hi2'
@@ -22,6 +23,11 @@ const userlinkitems = [
     {
         icon: MdOutlineGroups,
         title: 'Clients',
+        pgLink: '/client',
+    },
+    {
+        icon: MdMarkEmailUnread,
+        title: 'EDM Schedules',
         pgLink: '/client',
     },
     {

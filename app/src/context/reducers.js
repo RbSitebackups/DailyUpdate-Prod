@@ -46,6 +46,11 @@ import {
     CREATE_ADD_PROGRESS_BEGIN,
     CREATE_ADD_PROGRESS_SUCCESS,
     CREATE_ADD_PROGRESS_ERROR,
+    CREATE_SCHEDULE_BEGIN,
+    CREATE_SCHEDULE_ERROR,
+    CREATE_SCHEDULE_SUCCESS,
+    GET_IND_SCHEDULE_BEGIN,
+    GET_IND_SCHEDULE_SUCCESS,
 } from './actions'
 
 import { initialState } from './appContext'
@@ -435,6 +440,46 @@ const reducers = (state, action) => {
             alertType: 'error',
             alertText: action.payload.msg,
             alertTitle: 'Error',
+        }
+    }
+
+    if (action.type === CREATE_SCHEDULE_BEGIN) {
+        return { ...state, isLoading: true }
+    }
+
+    if (action.type === CREATE_SCHEDULE_SUCCESS) {
+        return {
+            ...state,
+            isLoading: false,
+            showAlert: true,
+            alertType: 'success',
+            alertText: 'Addeded successfully',
+            alertTitle: 'Update',
+        }
+    }
+
+    if (action.type === CREATE_SCHEDULE_ERROR) {
+        return {
+            ...state,
+            isLoading: false,
+            showAlert: true,
+            alertType: 'error',
+            alertText: action.payload.msg,
+            alertTitle: 'Error',
+        }
+    }
+
+    if (action.type === GET_IND_SCHEDULE_BEGIN) {
+        return { ...state, isLoading: true, showAlert: false }
+    }
+
+    if (action.type === GET_IND_SCHEDULE_SUCCESS) {
+        return {
+            ...state,
+            isLoading: false,
+            edmSchedule: action.payload.edmSchedule,
+            numOfPages: action.payload.numOfPages,
+            totalEdmSchedules: action.payload.totalEdmSchedules,
         }
     }
 

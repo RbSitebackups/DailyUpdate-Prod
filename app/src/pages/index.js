@@ -5,6 +5,7 @@ import ProtectedRoutes from './ProtectedRoutes'
 import { Category } from './category'
 import { Client, Userclient } from './client'
 import { Dailyupdate } from './dailyupdate'
+import { Edmschedule, Listschedule } from './edmschedule'
 
 export {
     Landing,
@@ -15,4 +16,6 @@ export {
     Client,
     Userclient,
     Dailyupdate,
+    Edmschedule,
+    Listschedule,
 }

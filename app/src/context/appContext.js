@@ -50,6 +50,11 @@ import {
     CREATE_ADD_PROGRESS_BEGIN,
     CREATE_ADD_PROGRESS_SUCCESS,
     CREATE_ADD_PROGRESS_ERROR,
+    CREATE_SCHEDULE_BEGIN,
+    CREATE_SCHEDULE_ERROR,
+    CREATE_SCHEDULE_SUCCESS,
+    GET_IND_SCHEDULE_BEGIN,
+    GET_IND_SCHEDULE_SUCCESS,
 } from './actions'
 
 const user = localStorage.getItem('user')
@@ -248,11 +253,13 @@ const AppProvider = ({ children }) => {
 
     /* ################# CATEGORY ################### */
     const createCategory = async () => {
+        const category_for = 'all'
         dispatch({ type: CREATE_CATEGORY_BEGIN })
         try {
             const { category_name } = state
             await authFetch.post('/cate', {
                 category_name,
+                category_for,
             })
             dispatch({ type: CREATE_CATEGORY_SUCCESS })
             dispatch({ type: CLEAR_VALUES })
@@ -527,6 +534,51 @@ const AppProvider = ({ children }) => {
     }
 
     /* ################# PROGRESS END ################### */
+    /* ################# EDM SCHEDULE Start ################### */
+
+    const addSchedule = async (scheduleData) => {
+        const client_id = sessionStorage.getItem('ClientID')
+        dispatch({ type: CREATE_SCHEDULE_BEGIN })
+        try {
+            await authFetch.post('/schedule', {
+                date_to_send: scheduleData.date_to_send,
+                time_to_send: scheduleData.time_to_send,
+                campaign_title: scheduleData.campaignTitle,
+                edm_title: scheduleData.edmTitle,
+                audience: scheduleData.audience,
+                client_id: client_id,
+            })
+            dispatch({ type: CREATE_SCHEDULE_SUCCESS })
+            dispatch({ type: CLEAR_VALUES })
+        } catch (error) {
+            if (error.response.status === 401) return
+            dispatch({
+                type: CREATE_SCHEDULE_ERROR,
+                payload: { msg: error.response.data.msg },
+            })
+        }
+        clearAlert()
+    }
+
+    const getIndSchedule = async () => {
+        const cilent_id = sessionStorage.getItem('ClientID')
+
+        dispatch({ type: GET_IND_SCHEDULE_BEGIN })
+        try {
+            const { data } = await authFetch.get(`/schedule/${cilent_id}`)
+            const { edmSchedule, totalEdmSchedules, numOfPages } = data
+
+            dispatch({
+                type: GET_IND_SCHEDULE_SUCCESS,
+                payload: { edmSchedule, totalEdmSchedules, numOfPages },
+            })
+        } catch (error) {
+            // logoutUser()
+        }
+        clearAlert()
+    }
+
+    /* ################# EDM SCHEDULE END ################### */
 
     return (
         <AppContext.Provider
@@ -558,6 +610,8 @@ const AppProvider = ({ children }) => {
                 getDistinctCategories,
                 fetchUpdates,
                 addUpdate,
+                addSchedule,
+                getIndSchedule,
             }}
         >
             {children}
