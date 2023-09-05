@@ -77,8 +77,6 @@ const Login = () => {
     const handleCredentialResponse = (res) => {
         const details = jwt_decode(res.credential)
 
-        console.log(details)
-
         const email = details.email
         const name = details.given_name
         const lastName = details.family_name

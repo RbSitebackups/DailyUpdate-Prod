@@ -16,6 +16,7 @@
     "author": "Resonate Business Ignition",
     "license": "ISC",
     "devDependencies": {
+        "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
         "nodemon": "^3.0.1"
     },
     "dependencies": {

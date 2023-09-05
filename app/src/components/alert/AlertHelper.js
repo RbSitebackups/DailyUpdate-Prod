@@ -9,7 +9,10 @@ import { useAppContext } from '../../context/appContext'
 const AlertHelper = () => {
   const { alertType, alertText, alertTitle } = useAppContext()
   return (
-    <Alert status={alertType}>
+    <Alert
+      status={alertType}
+      variant='solid'
+    >
       <AlertIcon />
       {!alertTitle && alertText}
       {alertTitle && (

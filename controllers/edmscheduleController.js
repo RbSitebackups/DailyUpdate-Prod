@@ -1,82 +1,113 @@
 import Schedule from '../models/Schedule.js'
 import { StatusCodes } from 'http-status-codes'
 import {
-    BadRequestError,
-    NotFoundError,
-    UnAuthenticatedError,
+  BadRequestError,
+  NotFoundError,
+  UnAuthenticatedError,
 } from '../errors/index.js'
 
 const listSchedule = async (req, res) => {
-    const edmSchedule = await Schedule.find()
-    res.status(StatusCodes.OK).json({
-        edmSchedule,
-        totalEdmSchedules: edmSchedule.length,
-        numOfPages: 1,
-    })
+  const edmSchedule = await Schedule.find()
+  res.status(StatusCodes.OK).json({
+    edmSchedule,
+    totalEdmSchedules: edmSchedule.length,
+    numOfPages: 1,
+  })
+}
+
+const cDistTitle = async (req, res) => {
+  const distinctCampaignTitles = await Schedule.distinct('campaign_title')
+
+  // Map the distinct campaign titles to an array of objects
+  const campaignSuggestions = distinctCampaignTitles.map((title) => ({
+    title: title,
+  }))
+
+  res.status(StatusCodes.OK).json({
+    campaignSuggestions: campaignSuggestions,
+  })
+}
+
+const eDistTitle = async (req, res) => {
+  const distinctCampaignTitles = await Schedule.distinct('edm_title')
+
+  // Map the distinct campaign titles to an array of objects
+  const edmSuggestions = distinctCampaignTitles.map((title) => ({
+    title: title,
+  }))
+
+  res.status(StatusCodes.OK).json({
+    edmSuggestions: edmSuggestions,
+  })
 }
 
 const indClinetSchedule = async (req, res) => {
-    const { id: client_id } = req.params
+  const { id: client_id } = req.params
 
-    const edmSchedule = await Schedule.find({ client_id: client_id })
-    res.status(StatusCodes.OK).json({
-        edmSchedule,
-        totalEdmSchedules: edmSchedule.length,
-        numOfPages: 1,
-    })
+  const edmSchedule = await Schedule.find({ client_id: client_id }).sort({
+    date_to_send: -1, // 1 for ascending order
+  })
+
+  res.status(StatusCodes.OK).json({
+    edmSchedule,
+    totalEdmSchedules: edmSchedule.length,
+    numOfPages: 1,
+  })
 }
 
 const addSchedule = async (req, res) => {
-    const { date_to_send, time_to_send, campaign_title, edm_title } = req.body
-    if (!date_to_send || !time_to_send || !campaign_title || !edm_title) {
-        throw new BadRequestError('Please provide the value!')
-    }
+  const { date_to_send, campaign_title, edm_title } = req.body
+  if (!date_to_send || !campaign_title || !edm_title) {
+    throw new BadRequestError('Please provide the value!')
+  }
 
-    req.body.createdBy = req.user.userID
-    const edmSchedule = await Schedule.create(req.body)
-    res.status(StatusCodes.CREATED).json({ edmSchedule })
+  req.body.createdBy = req.user.userID
+  const edmSchedule = await Schedule.create(req.body)
+  res.status(StatusCodes.CREATED).json({ edmSchedule })
 }
 
 const editSchedule = async (req, res) => {
-    const { id: scheduleID } = req.params
-    const { date_to_send, time_to_send, campaign_title, edm_title } = req.body
+  const { id: scheduleID } = req.params
+  const { date_to_send, campaign_title, edm_title } = req.body
 
-    if (!date_to_send || !time_to_send || !campaign_title || !edm_title) {
-        throw new BadRequestError('Please provide the value!')
-    }
+  if (!date_to_send || !campaign_title || !edm_title) {
+    throw new BadRequestError('Please provide the value!')
+  }
 
-    const edmSchedule = await Schedule.findOne({ _id: scheduleID })
+  const edmSchedule = await Schedule.findOne({ _id: scheduleID })
 
-    if (!edmSchedule) {
-        throw new NotFoundError(`No schedule with id :${scheduleID}`)
-    }
+  if (!edmSchedule) {
+    throw new NotFoundError(`No schedule with id :${scheduleID}`)
+  }
 
-    // check permission
+  // check permission
 
-    const updatedSchedule = await Schedule.findOneAndUpdate(
-        { _id: scheduleID },
-        req.body,
-        { new: true, runValidators: true }
-    )
+  const updatedSchedule = await Schedule.findOneAndUpdate(
+    { _id: scheduleID },
+    req.body,
+    { new: true, runValidators: true }
+  )
 
-    res.status(StatusCodes.OK).json({ updatedSchedule })
+  res.status(StatusCodes.OK).json({ updatedSchedule })
 }
 
 const deleteSchedule = async (req, res) => {
-    const { id: scheduleID } = req.params
+  const { id: scheduleID } = req.params
 
-    const edmSchedule = await Schedule.deleteOne({ _id: scheduleID })
+  const edmSchedule = await Schedule.deleteOne({ _id: scheduleID })
 
-    if (!edmSchedule) {
-        throw new NotFoundError(`No Schedule with id :${scheduleID}`)
-    }
-    res.status(StatusCodes.OK).json({ msg: 'Success! Schedule removed' })
+  if (!edmSchedule) {
+    throw new NotFoundError(`No Schedule with id :${scheduleID}`)
+  }
+  res.status(StatusCodes.OK).json({ msg: 'Success! Schedule removed' })
 }
 
 export {
-    listSchedule,
-    addSchedule,
-    editSchedule,
-    deleteSchedule,
-    indClinetSchedule,
+  listSchedule,
+  addSchedule,
+  editSchedule,
+  deleteSchedule,
+  indClinetSchedule,
+  cDistTitle,
+  eDistTitle,
 }
