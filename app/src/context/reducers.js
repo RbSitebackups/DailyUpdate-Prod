@@ -60,6 +60,8 @@ import {
   EDIT_SCHEDULE_BEGIN,
   EDIT_SCHEDULE_ERROR,
   EDIT_SCHEDULE_SUCCESS,
+  SETUP_USERCLIENT_SUCCESS,
+  SETUP_USERCLIENT_ERROR,
 } from './actions'
 
 import { initialState } from './appContext'
@@ -148,6 +150,14 @@ const reducers = (state, action) => {
       alertType: 'success',
       alertText: 'Redirecting...',
       alertTitle: action.payload.alertText,
+    }
+  }
+
+  if (action.type === SETUP_USERCLIENT_SUCCESS) {
+    return {
+      ...state,
+      isLoading: false,
+      userClient: action.payload.assUserClient,
     }
   }
 

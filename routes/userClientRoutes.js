@@ -2,13 +2,14 @@ import express from 'express'
 const router = express.Router()
 
 import {
-    listUserclient,
-    addUserClient,
-    deleteUserClient,
+  listUserclient,
+  addUserClient,
+  deleteUserClient,
+  getUserClient,
 } from '../controllers/userClientController.js'
 
+router.route('/getclients/:id').get(getUserClient)
+router.route('/:id').get(listUserclient).delete(deleteUserClient)
 router.route('/').post(addUserClient)
-router.route('/:id').get(listUserclient)
-router.route('/:id').delete(deleteUserClient)
 
 export default router

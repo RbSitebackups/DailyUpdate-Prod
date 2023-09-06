@@ -1,16 +1,16 @@
 import {
-    Avatar,
-    Flex,
-    Icon,
-    Menu,
-    MenuButton,
-    MenuList,
-    MenuItem,
-    useColorModeValue,
-    Text,
-    Image,
-    Link,
-    Button,
+  Avatar,
+  Flex,
+  Icon,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  useColorModeValue,
+  Text,
+  Image,
+  Link,
+  Button,
 } from '@chakra-ui/react'
 import { MdNotificationsNone, MdInfoOutline } from 'react-icons/md'
 import { ThemeEditor } from './ThemeEditor'
@@ -18,24 +18,24 @@ import { useAppContext } from '../context/appContext'
 import { Link as ReactLink } from 'react-router-dom'
 
 const TopNavBar = () => {
-    const { user, logoutUser } = useAppContext()
+  const { user, logoutUser } = useAppContext()
 
-    const navbarIcon = useColorModeValue('gray.400', 'white')
-    let menuBg = useColorModeValue('white', 'navy.800')
-    const textColor = useColorModeValue('secondaryGray.900', 'white')
-    const textColorBrand = useColorModeValue('brand.700', 'brand.400')
-    const borderColor = useColorModeValue('#E6ECFA', 'rgba(135, 140, 189, 0.3)')
-    const shadow = useColorModeValue(
-        '14px 17px 40px 4px rgba(112, 144, 176, 0.18)',
-        '14px 17px 40px 4px rgba(112, 144, 176, 0.06)'
-    )
-    const borderButton = useColorModeValue(
-        'secondaryGray.500',
-        'whiteAlpha.200'
-    )
-    return (
-        <Flex alignItems='center' alignContent='center'>
-            <Menu>
+  const navbarIcon = useColorModeValue('gray.400', 'white')
+  let menuBg = useColorModeValue('white', 'navy.800')
+  const textColor = useColorModeValue('secondaryGray.900', 'white')
+  const textColorBrand = useColorModeValue('brand.700', 'brand.400')
+  const borderColor = useColorModeValue('#E6ECFA', 'rgba(135, 140, 189, 0.3)')
+  const shadow = useColorModeValue(
+    '14px 17px 40px 4px rgba(112, 144, 176, 0.18)',
+    '14px 17px 40px 4px rgba(112, 144, 176, 0.06)'
+  )
+  const borderButton = useColorModeValue('secondaryGray.500', 'whiteAlpha.200')
+  return (
+    <Flex
+      alignItems='center'
+      alignContent='center'
+    >
+      {/* <Menu>
                 <MenuButton p='0px'>
                     <Icon
                         mt='6px'
@@ -156,76 +156,82 @@ const TopNavBar = () => {
                 </MenuList>
             </Menu>
 
-            <ThemeEditor navbarIcon={navbarIcon} />
+            <ThemeEditor navbarIcon={navbarIcon} /> */}
 
-            <Menu>
-                <MenuButton p='0px'>
-                    <Avatar
-                        _hover={{ cursor: 'pointer' }}
-                        color='white'
-                        name={user.user}
-                        bg='#11047A'
-                        size='sm'
-                        w='40px'
-                        h='40px'
-                    />
-                </MenuButton>
-                <MenuList
-                    boxShadow={shadow}
-                    p='0px'
-                    mt='10px'
-                    borderRadius='20px'
-                    bg={menuBg}
-                    border='none'
-                >
-                    <Flex w='100%' mb='0px'>
-                        <Text
-                            ps='20px'
-                            pt='16px'
-                            pb='10px'
-                            w='100%'
-                            borderBottom='1px solid'
-                            borderColor={borderColor}
-                            fontSize='sm'
-                            fontWeight='700'
-                            color={textColor}
-                        >
-                            👋&nbsp; Hey, {user.displayName}
-                        </Text>
-                    </Flex>
-                    <Flex flexDirection='column' p='10px'>
-                        <MenuItem
-                            _hover={{ bg: 'none' }}
-                            _focus={{ bg: 'none' }}
-                            borderRadius='8px'
-                            px='14px'
-                            as={ReactLink}
-                            to='/profile'
-                        >
-                            <Text fontSize='sm'>Profile Settings</Text>
-                        </MenuItem>
-                        <MenuItem
-                            _hover={{ bg: 'none' }}
-                            _focus={{ bg: 'none' }}
-                            borderRadius='8px'
-                            px='14px'
-                        >
-                            <Text fontSize='sm'>Newsletter Settings</Text>
-                        </MenuItem>
-                        <MenuItem
-                            _hover={{ bg: 'none' }}
-                            _focus={{ bg: 'none' }}
-                            color='red.400'
-                            borderRadius='8px'
-                            px='14px'
-                            onClick={logoutUser}
-                        >
-                            <Text fontSize='sm'>Log out</Text>
-                        </MenuItem>
-                    </Flex>
-                </MenuList>
-            </Menu>
-        </Flex>
-    )
+      <Menu>
+        <MenuButton p='0px'>
+          <Avatar
+            _hover={{ cursor: 'pointer' }}
+            color='white'
+            name={user.user}
+            bg='#11047A'
+            size='sm'
+            w='40px'
+            h='40px'
+          />
+        </MenuButton>
+        <MenuList
+          boxShadow={shadow}
+          p='0px'
+          mt='10px'
+          borderRadius='20px'
+          bg={menuBg}
+          border='none'
+        >
+          <Flex
+            w='100%'
+            mb='0px'
+          >
+            <Text
+              ps='20px'
+              pt='16px'
+              pb='10px'
+              w='100%'
+              borderBottom='1px solid'
+              borderColor={borderColor}
+              fontSize='sm'
+              fontWeight='700'
+              color={textColor}
+            >
+              👋&nbsp; Hey, {user.displayName}
+            </Text>
+          </Flex>
+          <Flex
+            flexDirection='column'
+            p='10px'
+          >
+            <MenuItem
+              _hover={{ bg: 'none' }}
+              _focus={{ bg: 'none' }}
+              borderRadius='8px'
+              px='14px'
+              as={ReactLink}
+              to='/profile'
+            >
+              <Text fontSize='sm'>Profile Settings</Text>
+            </MenuItem>
+            <MenuItem
+              _hover={{ bg: 'none' }}
+              _focus={{ bg: 'none' }}
+              borderRadius='8px'
+              px='14px'
+            >
+              <Text fontSize='sm'>Newsletter Settings</Text>
+            </MenuItem>
+            <MenuItem
+              _hover={{ bg: 'none' }}
+              _focus={{ bg: 'none' }}
+              color='red.400'
+              borderRadius='8px'
+              px='14px'
+              onClick={logoutUser}
+            >
+              <Text fontSize='sm'>Log out</Text>
+            </MenuItem>
+          </Flex>
+        </MenuList>
+      </Menu>
+    </Flex>
+  )
 }
 export default TopNavBar

@@ -1,31 +1,44 @@
 import { Outlet } from 'react-router-dom'
 import MainSidebar from './MainSidebar'
-import { Box, Flex, Grid } from '@chakra-ui/react'
+import { Box, Flex } from '@chakra-ui/react'
 import { useState } from 'react'
 import Navbar from './Navbar'
 
 const SharedLayout = () => {
-    const [navSize, changeNavSize] = useState(true)
-    return (
-        <Grid
-            templateColumns={{ base: '1fr', md: '250px 1fr' }}
-            templateRows={{ base: 'auto', md: '1fr auto' }}
-            h='100vh'
+  const [navSize, setNavSize] = useState(true)
+
+  const toggleNavSize = () => {
+    setNavSize(!navSize)
+  }
+
+  const mainSidebarWidth = navSize ? '250px' : '75px' // Adjust the width as needed
+
+  return (
+    <>
+      <Flex bg='blackAlpha.800'>
+        <Navbar
+          navSize={navSize}
+          toggleNavSize={toggleNavSize}
+        />
+      </Flex>
+      <Flex>
+        <MainSidebar navSize={navSize} />
+        <Flex
+          flexDir='column'
+          w='100%'
         >
-            <MainSidebar navSize={navSize} />
-            <Flex flexDir='column'>
-                <Navbar />
-                <Box
-                    p='50px'
-                    bg='brown'
-                    h='100%'
-                    gridColumn='2/3'
-                    gridRow='2/3'
-                >
-                    <Outlet />
-                </Box>
-            </Flex>
-        </Grid>
-    )
+          <Box
+            p='50px'
+            bg='brown'
+            w='100%'
+            minH='100vh'
+          >
+            <Outlet />
+          </Box>
+        </Flex>
+      </Flex>
+    </>
+  )
 }
+
 export default SharedLayout

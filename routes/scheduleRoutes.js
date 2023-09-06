@@ -9,13 +9,13 @@ import {
   indClinetSchedule,
   cDistTitle,
   eDistTitle,
+  getSchedulesByClientIds,
 } from '../controllers/edmscheduleController.js'
 
-// Move the 'cDistTitle' route before the route that expects a client ID
+// Move the 'cDistTitle', 'etitles', 'alluserclient' route before the route that expects a client ID
 router.route('/ctitles').get(cDistTitle)
-// Move the 'eDistTitle' route before the route that expects a client ID
 router.route('/etitles').get(eDistTitle)
-
+router.route('/alluserclient').get(getSchedulesByClientIds)
 // Define the routes for 'indClinetSchedule', 'editSchedule', and 'deleteSchedule' afterward
 router
   .route('/:id')

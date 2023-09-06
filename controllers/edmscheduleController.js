@@ -7,7 +7,9 @@ import {
 } from '../errors/index.js'
 
 const listSchedule = async (req, res) => {
-  const edmSchedule = await Schedule.find()
+  const edmSchedule = await Schedule.find().sort({
+    date_to_send: -1, // 1 for ascending order
+  })
   res.status(StatusCodes.OK).json({
     edmSchedule,
     totalEdmSchedules: edmSchedule.length,
@@ -55,6 +57,24 @@ const indClinetSchedule = async (req, res) => {
   })
 }
 
+const getSchedulesByClientIds = async (req, res) => {
+  // Parse the client_ids from the query parameters
+  const clientIds = req.query.client_ids.split(',') // Split the comma-separated string into an array
+
+  // Use Mongoose to find schedules that match the client_ids
+  const edmSchedule = await Schedule.find({
+    client_id: { $in: clientIds },
+  }).sort({
+    date_to_send: -1, // 1 for ascending order
+  })
+
+  res.status(StatusCodes.OK).json({
+    edmSchedule,
+    totalEdmSchedules: edmSchedule.length,
+    numOfPages: 1,
+  })
+}
+
 const addSchedule = async (req, res) => {
   const { date_to_send, campaign_title, edm_title } = req.body
   if (!date_to_send || !campaign_title || !edm_title) {
@@ -68,9 +88,9 @@ const addSchedule = async (req, res) => {
 
 const editSchedule = async (req, res) => {
   const { id: scheduleID } = req.params
-  const { date_to_send, campaign_title, edm_title } = req.body
+  const { date_to_send, campaign_title, edm_title, client_id } = req.body
 
-  if (!date_to_send || !campaign_title || !edm_title) {
+  if (!date_to_send || !campaign_title || !edm_title || !client_id) {
     throw new BadRequestError('Please provide the value!')
   }
 
@@ -110,4 +130,5 @@ export {
   indClinetSchedule,
   cDistTitle,
   eDistTitle,
+  getSchedulesByClientIds,
 }

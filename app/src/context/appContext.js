@@ -64,12 +64,15 @@ import {
   EDIT_SCHEDULE_BEGIN,
   EDIT_SCHEDULE_ERROR,
   EDIT_SCHEDULE_SUCCESS,
+  SETUP_USERCLIENT_SUCCESS,
+  SETUP_USERCLIENT_ERROR,
 } from './actions'
 
 const user = localStorage.getItem('user')
 const token = localStorage.getItem('token')
 const ClientID = sessionStorage.getItem('ClientID')
 const ClientName = sessionStorage.getItem('ClientName')
+const lsUserClient = JSON.parse(localStorage.getItem('userClient'))
 const _selectedClient = { ClientID, ClientName }
 
 const initialState = {
@@ -102,6 +105,7 @@ const initialState = {
   totalRows: 0,
   selectedClient: _selectedClient ? _selectedClient : null,
   client_id: '',
+  userClient: lsUserClient ? lsUserClient : [],
 }
 
 const AppContext = React.createContext()
@@ -177,6 +181,25 @@ const AppProvider = ({ children }) => {
     localStorage.removeItem('user')
     localStorage.removeItem('token')
   }
+  const addUserClientToLocalStorage = (userClient) => {
+    localStorage.setItem('userClient', JSON.stringify(userClient))
+  }
+
+  const setupUserClient = async (user) => {
+    const { _id } = user
+    try {
+      const { data } = await authFetch.get(`/userclient/getclients/${_id}`)
+      const { assUserClient } = data
+      const payload = user.isAdmin ? [] : { assUserClient }
+      dispatch({
+        type: SETUP_USERCLIENT_SUCCESS,
+        payload: payload,
+      })
+      addUserClientToLocalStorage(payload)
+    } catch (error) {
+      console.log(error.response.data.msg)
+    }
+  }
 
   const setupUser = async ({ currentUser, endPoint, alertText }) => {
     dispatch({ type: SETUP_USER_BEGIN })
@@ -206,7 +229,6 @@ const AppProvider = ({ children }) => {
         type: SETUP_USER_SUCCESS,
         payload: { user, token, alertText },
       })
-
       addUserToLocalStorage({ user, token })
     } catch (error) {
       const { data } = await axios.post('api/v1/auth/gregister', currentUser)
@@ -556,7 +578,8 @@ const AppProvider = ({ children }) => {
   /* ################# EDM SCHEDULE Start ################### */
 
   const addSchedule = async (scheduleData) => {
-    const client_id = sessionStorage.getItem('ClientID')
+    const client_id =
+      scheduleData.clientID || sessionStorage.getItem('ClientID')
     dispatch({ type: CREATE_SCHEDULE_BEGIN })
     try {
       await authFetch.post('/schedule', {
@@ -578,12 +601,59 @@ const AppProvider = ({ children }) => {
     clearAlert()
   }
 
+  const getSchedule = async () => {
+    dispatch({ type: GET_IND_SCHEDULE_BEGIN })
+    try {
+      const { data } = await authFetch.get(`/schedule`)
+      const { edmSchedule, totalEdmSchedules, numOfPages } = data
+
+      dispatch({
+        type: GET_IND_SCHEDULE_SUCCESS,
+        payload: { edmSchedule, totalEdmSchedules, numOfPages },
+      })
+    } catch (error) {
+      // logoutUser()
+    }
+    clearAlert()
+  }
+
+  const getUCSchedule = async () => {
+    // Assuming `lsUserClient` contains the array of client data you provided
+
+    dispatch({ type: GET_IND_SCHEDULE_BEGIN })
+    // Extract the client IDs from lsUserClient
+    const clientIds = lsUserClient.assUserClient.map(
+      (client) => client.client_id
+    )
+
+    try {
+      // Fetch schedules that match the client_ids
+      const { data } = await authFetch.get(`/schedule/alluserclient`, {
+        params: {
+          client_ids: clientIds.join(','), // Convert client IDs to comma-separated string
+        },
+      })
+
+      const { edmSchedule, totalEdmSchedules, numOfPages } = data
+
+      dispatch({
+        type: GET_IND_SCHEDULE_SUCCESS,
+        payload: { edmSchedule, totalEdmSchedules, numOfPages },
+      })
+    } catch (error) {
+      // Handle error here
+      // logoutUser()
+    }
+
+    clearAlert()
+  }
+
   const getIndSchedule = async () => {
-    const cilent_id = sessionStorage.getItem('ClientID')
+    const client_id = sessionStorage.getItem('ClientID')
 
     dispatch({ type: GET_IND_SCHEDULE_BEGIN })
     try {
-      const { data } = await authFetch.get(`/schedule/${cilent_id}`)
+      const { data } = await authFetch.get(`/schedule/${client_id}`)
       const { edmSchedule, totalEdmSchedules, numOfPages } = data
 
       dispatch({
@@ -634,6 +704,7 @@ const AppProvider = ({ children }) => {
         edm_title: modifiedSchedule.edm_title,
         audience: modifiedSchedule.audience,
         linked_edm: modifiedSchedule.linked_edm,
+        client_id: modifiedSchedule.client_id,
       })
       dispatch({ type: EDIT_SCHEDULE_SUCCESS })
     } catch (error) {
@@ -653,6 +724,7 @@ const AppProvider = ({ children }) => {
         ...state,
         displayAlert,
         setupUser,
+        setupUserClient,
         logoutUser,
         updateUser,
         handleChange,
@@ -685,6 +757,8 @@ const AppProvider = ({ children }) => {
         getCampaignSuggestions,
         getEdmSuggestions,
         editSchedule,
+        getSchedule,
+        getUCSchedule,
       }}
     >
       {children}

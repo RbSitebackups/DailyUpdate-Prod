@@ -44,6 +44,7 @@ const AutocompleteInput = ({
         value={mainValue}
         onChange={handleInputChange}
         onBlur={handleInputBlur}
+        borderRadius='2'
       />
       {filteredSuggestions.length > 0 && (
         <List

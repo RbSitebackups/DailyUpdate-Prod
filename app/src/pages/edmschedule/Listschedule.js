@@ -33,7 +33,7 @@ import {
 import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa'
 import { MdSave } from 'react-icons/md'
 import { HiOutlineCalendar } from 'react-icons/hi2'
-import { BsChevronDown } from 'react-icons/bs'
+import { BsChevronDown, BsChevronUp } from 'react-icons/bs'
 import { FiRefreshCw } from 'react-icons/fi'
 import { DialogHelper, AutocompleteHelper, AlertHelper } from '../../components'
 import moment from 'moment'
@@ -62,6 +62,13 @@ const Listschedule = () => {
     getEdmSuggestions,
     editSchedule,
     showAlert,
+    user,
+    getSchedule,
+    setSelectedClient,
+    userClient,
+    getUCSchedule,
+    getClients,
+    client,
   } = useAppContext()
 
   const [selectedDate, setSelectedDate] = useState(new Date())
@@ -69,6 +76,8 @@ const Listschedule = () => {
   const [campaignTitle, setCampaignTitle] = useState()
   const [edmTitle, setEdmTitle] = useState()
   const [audience, setAudience] = useState()
+  const [clientID, setClientID] = useState()
+  const [clientIDEdit, setClientIDEdit] = useState()
   const [campaignTitleEdit, setCampaignTitleEdit] = useState()
   const [edmTitleEdit, setEdmTitleEdit] = useState()
   const [audienceEdit, setAudienceEdit] = useState()
@@ -76,7 +85,8 @@ const Listschedule = () => {
   const [editingRowId, setEditingRowId] = useState(null)
   const [isEditingRow, setIsEditingRow] = useState(false)
   const [editedRowId, setEditedRowId] = useState(null)
-  const [campaignTitleInput, setCampaignTitleInput] = useState('')
+  const [userClientCond, setUserClientCond] = useState([])
+  const [isOpen, setIsOpen] = useState(false)
 
   const toggleFormVisibility = () => {
     setIsFormVisible((prevVisible) => !prevVisible)
@@ -87,11 +97,49 @@ const Listschedule = () => {
     return day !== 0 && day !== 6
   }
 
+  const changeClient = (cID, cName, all) => {
+    setSelectedClient(cID, cName)
+    // Check if the user is an admin
+    if (user.isAdmin && all === 'all') {
+      // Trigger getSchedule() if the user is an admin
+      getSchedule()
+    } else if (!user.isAdmin && all === 'all') {
+      // Trigger getUCSchedule() if the user is not an admin
+      getUCSchedule()
+    } else if (all !== 'all') {
+      // Trigger getIndSchedule() if the user is not an admin
+      getIndSchedule()
+    }
+  }
+
   useEffect(() => {
-    getIndSchedule()
+    // Check if the user is an admin
+    if (user.isAdmin) {
+      // Trigger getSchedule() if the user is an admin
+      getSchedule()
+    } else {
+      // Trigger getIndSchedule() if the user is not an admin
+      getIndSchedule()
+    }
     getCampaignSuggestions()
     getEdmSuggestions()
+    setSelectedClient('', '')
+    getClients()
   }, [])
+
+  useEffect(() => {
+    const handleCondition = () => {
+      if (user.isAdmin) {
+        setUserClientCond(client)
+      } else {
+        setUserClientCond(userClient.assUserClient)
+      }
+    }
+
+    const intervalId = setInterval(handleCondition, 200)
+
+    return () => clearInterval(intervalId)
+  }, [user.isAdmin, client])
 
   const formatDate = (date) => {
     return moment(date).format('DD/MM/YYYY - hh:mm a')
@@ -105,16 +153,22 @@ const Listschedule = () => {
       edmTitle,
       audience,
       date_to_send: selectedDate,
+      clientID,
     }
 
     addSchedule(newSchedule)
-    getIndSchedule()
+    changeClient(
+      selectedClient.ClientID,
+      selectedClient.ClientName,
+      selectedClient.ClientID === '' ? 'all' : ''
+    )
     getCampaignSuggestions()
     getEdmSuggestions()
 
     setCampaignTitle('')
     setEdmTitle('')
     setAudience('')
+    setClientID('')
 
     if (isEditing) {
       return
@@ -131,6 +185,8 @@ const Listschedule = () => {
       setEdmTitle(value)
     } else if (name === 'audience') {
       setAudience(value)
+    } else if (name === 'clientID') {
+      setClientID(value)
     }
   }
 
@@ -142,6 +198,7 @@ const Listschedule = () => {
     setLinkedEdmEdit(row.linked_edm)
     setEdmTitleEdit(row.edm_title)
     setAudienceEdit(row.audience)
+    setClientIDEdit(row.client_id)
     setSelectedDateEdit(new Date(row.date_to_send))
   }
 
@@ -161,6 +218,8 @@ const Listschedule = () => {
       setAudienceEdit(value)
     } else if (field === 'linkedEdmEdit') {
       setLinkedEdmEdit(value)
+    } else if (field === 'clientIDEdit') {
+      setClientIDEdit(value)
     }
   }
 
@@ -172,11 +231,19 @@ const Listschedule = () => {
       audience: audienceEdit,
       linked_edm: linkedEdmEdit,
       date_to_send: selectedDateEdit,
+      client_id: clientIDEdit,
     }
 
     editSchedule(editedSchedule)
 
-    getIndSchedule()
+    // Check if the user is an admin
+    if (user.isAdmin) {
+      // Trigger getSchedule() if the user is an admin
+      getSchedule()
+    } else {
+      // Trigger getIndSchedule() if the user is not an admin
+      getIndSchedule()
+    }
     getCampaignSuggestions()
     getEdmSuggestions()
 
@@ -200,13 +267,47 @@ const Listschedule = () => {
           justify='space-between'
           w='100%'
         >
-          <Heading
-            as='h2'
-            mb={4}
-            size='lg'
-          >
-            {selectedClient.ClientName}
-          </Heading>
+          <>
+            <Menu
+              isOpen={isOpen}
+              onClose={() => setIsOpen(false)}
+              onOpen={() => setIsOpen(true)}
+            >
+              <MenuButton
+                as={Button}
+                rightIcon={isOpen ? <BsChevronUp /> : <BsChevronDown />}
+                size='lg'
+                fontSize='22px'
+                p={0}
+                variant='unstyled'
+              >
+                {selectedClient && selectedClient.ClientName
+                  ? selectedClient.ClientName
+                  : 'All Clients'}
+              </MenuButton>
+              <MenuList>
+                <MenuItem onClick={() => changeClient('', '', 'all')}>
+                  All Clients
+                </MenuItem>
+                {userClientCond &&
+                  userClientCond.map((client) => (
+                    <MenuItem
+                      key={client._id}
+                      onClick={() =>
+                        changeClient(
+                          client.client_id !== undefined
+                            ? client.client_id
+                            : client._id,
+                          client.client_name
+                        )
+                      }
+                    >
+                      {client.client_initials} - {client.client_name}
+                    </MenuItem>
+                  ))}
+              </MenuList>
+            </Menu>
+          </>
           <Text>
             <strong>Date: {formattedDate}</strong>
           </Text>
@@ -237,7 +338,28 @@ const Listschedule = () => {
         {isFormVisible && (
           <form onSubmit={handleSubmit}>
             <Flex gap={8}>
-              <FormControl w='30%'>
+              {selectedClient.ClientName === '' && (
+                <FormControl w='20%'>
+                  <Select
+                    placeholder='Select Client'
+                    onChange={handleInput}
+                    name='clientID'
+                    value={clientID}
+                    borderRadius='2'
+                  >
+                    {userClientCond &&
+                      userClientCond.map((client) => (
+                        <option
+                          key={client.client_id || client._id}
+                          value={client.client_id || client._id}
+                        >
+                          {client.client_initials} - {client.client_name}
+                        </option>
+                      ))}
+                  </Select>
+                </FormControl>
+              )}
+              <FormControl w='20%'>
                 <InputGroup w='100%'>
                   <DatePicker
                     selected={selectedDate}
@@ -247,6 +369,7 @@ const Listschedule = () => {
                     timeIntervals={15}
                     timeCaption='Time'
                     filterDate={isWeekday}
+                    borderRadius='2'
                     customInput={
                       <Input
                         onChange={handleInput}
@@ -256,7 +379,7 @@ const Listschedule = () => {
                       />
                     }
                   />
-                  <InputRightAddon>
+                  <InputRightAddon borderRadius='2'>
                     <Icon as={HiOutlineCalendar} />
                   </InputRightAddon>
                 </InputGroup>
@@ -315,16 +438,26 @@ const Listschedule = () => {
               >
                 <Tr>
                   <Th
+                    w='5%'
+                    color='white'
+                    fontSize='16px'
+                    whiteSpace='normal'
+                  >
+                    Client
+                  </Th>
+                  <Th
                     w='15%'
                     color='white'
                     fontSize='16px'
+                    whiteSpace='normal'
                   >
                     Date & Time
                   </Th>
                   <Th
-                    w='20%'
+                    w='15%'
                     color='white'
                     fontSize='16px'
+                    whiteSpace='normal'
                   >
                     Campaign Title
                   </Th>
@@ -332,6 +465,7 @@ const Listschedule = () => {
                     w='20%'
                     color='white'
                     fontSize='16px'
+                    whiteSpace='normal'
                   >
                     EDM Title
                   </Th>
@@ -339,17 +473,22 @@ const Listschedule = () => {
                     w='20%'
                     color='white'
                     fontSize='16px'
+                    whiteSpace='normal'
                   >
                     Audience
                   </Th>
                   <Th
-                    w='15%'
+                    w='20%'
                     color='white'
                     fontSize='16px'
+                    whiteSpace='normal'
                   >
                     Gap from previous
                   </Th>
-                  <Th w='10%'></Th>
+                  <Th
+                    w='5%'
+                    whiteSpace='normal'
+                  ></Th>
                 </Tr>
               </Thead>
               {totalEdmSchedules > 0 ? (
@@ -357,8 +496,49 @@ const Listschedule = () => {
                   {edmSchedule.map((row, index) => (
                     <Tr key={index}>
                       <Td
+                        whiteSpace='normal'
+                        w='5%'
+                        align='left'
+                      >
+                        {isEditingRow && editedRowId === row._id ? (
+                          <Select
+                            placeholder='Select Client'
+                            onChange={handleInput}
+                            name='clientIDEdit'
+                            value={clientIDEdit}
+                            borderRadius='2'
+                            background='white'
+                            width='100px'
+                          >
+                            {userClientCond &&
+                              userClientCond.map((client) => (
+                                <option
+                                  key={client.client_id || client._id}
+                                  value={client.client_id || client._id}
+                                >
+                                  {client.client_initials}
+                                </option>
+                              ))}
+                          </Select>
+                        ) : (
+                          <Text
+                            bg='gray.300'
+                            pt='5px'
+                            pb='5px'
+                            mb='5px'
+                            textAlign='center'
+                            borderRadius='100px'
+                          >
+                            {client.find(
+                              (clientFind) => clientFind._id === row.client_id
+                            )?.client_initials || 'N/A'}
+                          </Text>
+                        )}
+                      </Td>
+                      <Td
                         w='15%'
                         align='left'
+                        whiteSpace='normal'
                       >
                         {isEditingRow && editedRowId === row._id ? (
                           <DatePicker
@@ -383,7 +563,10 @@ const Listschedule = () => {
                           <strong>{formatDate(row.date_to_send)}</strong>
                         )}
                       </Td>
-                      <Td w='20%'>
+                      <Td
+                        w='15%'
+                        whiteSpace='normal'
+                      >
                         {isEditingRow && editedRowId === row._id ? (
                           <Input
                             type='text'
@@ -404,7 +587,10 @@ const Listschedule = () => {
                           row.campaign_title
                         )}
                       </Td>
-                      <Td w='20%'>
+                      <Td
+                        w='20%'
+                        whiteSpace='normal'
+                      >
                         {isEditingRow && editedRowId === row._id ? (
                           <Input
                             type='text'
@@ -425,7 +611,10 @@ const Listschedule = () => {
                           row.edm_title
                         )}
                       </Td>
-                      <Td w='20%'>
+                      <Td
+                        w='20%'
+                        whiteSpace='normal'
+                      >
                         {isEditingRow && editedRowId === row._id ? (
                           <Input
                             type='text'
@@ -446,7 +635,10 @@ const Listschedule = () => {
                           row.audience
                         )}
                       </Td>
-                      <Td w='15%'>
+                      <Td
+                        w='20%'
+                        whiteSpace='normal'
+                      >
                         {isEditingRow && editedRowId === row._id ? (
                           <Select
                             bg='white'
@@ -524,7 +716,7 @@ const Listschedule = () => {
                         )}
                       </Td>
                       <Td
-                        w='10%'
+                        w='5%'
                         textAlign='right'
                       >
                         {isEditingRow && editedRowId === row._id ? (
