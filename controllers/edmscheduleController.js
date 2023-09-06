@@ -81,9 +81,9 @@ const getSchedulesByAssignedId = async (req, res) => {
   const { id: assigned_id } = req.params // Get the assigned_id from the query parameters
 
   // Find the UserClient document based on assigned_id
-  const userClient = await Userclient.findOne({ assigned_id })
+  const userClients = await Userclient.find({ assigned_id }, 'client_id')
 
-  if (!userClient) {
+  if (!userClients || userClients.length === 0) {
     res.status(StatusCodes.OK).json({
       edmSchedule: [],
       totalEdmSchedules: 0,
@@ -93,10 +93,12 @@ const getSchedulesByAssignedId = async (req, res) => {
     // throw new NotFoundError(`No UserClient with assigned_id: ${assigned_id}`)
   }
 
+  const clientIds = userClients.map((userClient) => userClient.client_id)
+
   // Use Mongoose aggregation to perform a join between Schedule and UserClient
   const edmSchedule = await Schedule.aggregate([
     {
-      $match: { client_id: userClient.client_id },
+      $match: { client_id: { $in: clientIds } },
     },
     {
       $sort: { date_to_send: -1 },
