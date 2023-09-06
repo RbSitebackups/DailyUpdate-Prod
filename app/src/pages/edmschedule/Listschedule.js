@@ -69,6 +69,9 @@ const Listschedule = () => {
     getUCSchedule,
     getClients,
     client,
+    getUserlist,
+    userlist,
+    getSchedulesByAssignedId,
   } = useAppContext()
 
   const [selectedDate, setSelectedDate] = useState(new Date())
@@ -87,6 +90,7 @@ const Listschedule = () => {
   const [editedRowId, setEditedRowId] = useState(null)
   const [userClientCond, setUserClientCond] = useState([])
   const [isOpen, setIsOpen] = useState(false)
+  const [selectedUser, setSelectedUser] = useState(null)
 
   const toggleFormVisibility = () => {
     setIsFormVisible((prevVisible) => !prevVisible)
@@ -95,6 +99,10 @@ const Listschedule = () => {
   function isWeekday(date) {
     const day = date.getDay()
     return day !== 0 && day !== 6
+  }
+  const handleMenuItemClick = (user) => {
+    setSelectedUser(user)
+    getSchedulesByAssignedId(user._id)
   }
 
   const changeClient = (cID, cName, all) => {
@@ -125,6 +133,7 @@ const Listschedule = () => {
     getEdmSuggestions()
     setSelectedClient('', '')
     getClients()
+    getUserlist()
   }, [])
 
   useEffect(() => {
@@ -312,28 +321,62 @@ const Listschedule = () => {
             <strong>Date: {formattedDate}</strong>
           </Text>
         </Flex>
-        <Flex justify='flex-end'>
-          <Tooltip
-            label={isFormVisible ? 'Cancel' : 'Add New'}
-            placement='top'
-          >
-            <IconButton
-              onClick={toggleFormVisibility}
-              colorScheme='grey'
-              borderColor='black'
-              borderRadius='50%'
-              variant='outline'
-              w='28px'
-              h='38px'
-              size='md'
+        <Flex justifyContent='space-between'>
+          <Flex>
+            {!selectedClient.ClientID && user.isAdmin && (
+              <Menu>
+                <MenuButton
+                  as={Button}
+                  rightIcon={<BsChevronDown />}
+                  colorScheme='grey'
+                  borderColor='black'
+                  borderRadius='50px'
+                  variant='outline'
+                >
+                  {selectedUser
+                    ? `${selectedUser.name} ${selectedUser.lastName}`
+                    : 'All Account Manager'}
+                </MenuButton>
+                <MenuList>
+                  <MenuItem onClick={() => changeClient('', '', 'all')}>
+                    All Account Manager
+                  </MenuItem>
+                  {userlist &&
+                    userlist.map((user) => (
+                      <MenuItem
+                        key={user._id}
+                        onClick={() => handleMenuItemClick(user)}
+                      >
+                        {user.name} {user.lastName}
+                      </MenuItem>
+                    ))}
+                </MenuList>
+              </Menu>
+            )}
+          </Flex>
+          <Flex>
+            <Tooltip
+              label={isFormVisible ? 'Cancel' : 'Add New'}
+              placement='top'
             >
-              {isFormVisible ? (
-                <FaPlus style={{ transform: 'rotate(45deg)' }} />
-              ) : (
-                <FaPlus />
-              )}
-            </IconButton>
-          </Tooltip>
+              <IconButton
+                onClick={toggleFormVisibility}
+                colorScheme='grey'
+                borderColor='black'
+                borderRadius='50%'
+                variant='outline'
+                w='28px'
+                h='38px'
+                size='md'
+              >
+                {isFormVisible ? (
+                  <FaPlus style={{ transform: 'rotate(45deg)' }} />
+                ) : (
+                  <FaPlus />
+                )}
+              </IconButton>
+            </Tooltip>
+          </Flex>
         </Flex>
         {isFormVisible && (
           <form onSubmit={handleSubmit}>

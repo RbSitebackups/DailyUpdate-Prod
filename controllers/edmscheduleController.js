@@ -1,4 +1,6 @@
 import Schedule from '../models/Schedule.js'
+import Userclient from '../models/Userclient.js'
+
 import { StatusCodes } from 'http-status-codes'
 import {
   BadRequestError,
@@ -75,6 +77,39 @@ const getSchedulesByClientIds = async (req, res) => {
   })
 }
 
+const getSchedulesByAssignedId = async (req, res) => {
+  const { id: assigned_id } = req.params // Get the assigned_id from the query parameters
+
+  // Find the UserClient document based on assigned_id
+  const userClient = await Userclient.findOne({ assigned_id })
+
+  if (!userClient) {
+    res.status(StatusCodes.OK).json({
+      edmSchedule: [],
+      totalEdmSchedules: 0,
+      numOfPages: 1,
+    })
+    return
+    // throw new NotFoundError(`No UserClient with assigned_id: ${assigned_id}`)
+  }
+
+  // Use Mongoose aggregation to perform a join between Schedule and UserClient
+  const edmSchedule = await Schedule.aggregate([
+    {
+      $match: { client_id: userClient.client_id },
+    },
+    {
+      $sort: { date_to_send: -1 },
+    },
+  ])
+
+  res.status(StatusCodes.OK).json({
+    edmSchedule,
+    totalEdmSchedules: edmSchedule.length,
+    numOfPages: 1,
+  })
+}
+
 const addSchedule = async (req, res) => {
   const { date_to_send, campaign_title, edm_title } = req.body
   if (!date_to_send || !campaign_title || !edm_title) {
@@ -131,4 +166,5 @@ export {
   cDistTitle,
   eDistTitle,
   getSchedulesByClientIds,
+  getSchedulesByAssignedId,
 }

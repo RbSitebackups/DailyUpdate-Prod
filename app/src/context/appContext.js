@@ -663,7 +663,25 @@ const AppProvider = ({ children }) => {
     } catch (error) {
       // logoutUser()
     }
-    clearAlert()
+  }
+
+  const getSchedulesByAssignedId = async (userID) => {
+    const assigned_id = userID
+
+    dispatch({ type: GET_IND_SCHEDULE_BEGIN })
+    try {
+      const { data } = await authFetch.get(
+        `/schedule/allassignedclient/${assigned_id}`
+      )
+      const { edmSchedule, totalEdmSchedules, numOfPages } = data
+
+      dispatch({
+        type: GET_IND_SCHEDULE_SUCCESS,
+        payload: { edmSchedule, totalEdmSchedules, numOfPages },
+      })
+    } catch (error) {
+      // logoutUser()
+    }
   }
 
   const getCampaignSuggestions = async () => {
@@ -759,6 +777,7 @@ const AppProvider = ({ children }) => {
         editSchedule,
         getSchedule,
         getUCSchedule,
+        getSchedulesByAssignedId,
       }}
     >
       {children}
