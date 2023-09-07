@@ -137,18 +137,12 @@ const Listschedule = () => {
   }, [])
 
   useEffect(() => {
-    const handleCondition = () => {
-      if (user.isAdmin) {
-        setUserClientCond(client)
-      } else {
-        setUserClientCond(userClient.assUserClient)
-      }
+    if (user.isAdmin) {
+      setUserClientCond(client)
+    } else {
+      setUserClientCond(userClient.assUserClient)
     }
-
-    const intervalId = setInterval(handleCondition, 300)
-
-    return () => clearInterval(intervalId)
-  }, [user.isAdmin, client])
+  }, [])
 
   const formatDate = (date) => {
     return moment(date).format('DD/MM/YYYY - hh:mm a')

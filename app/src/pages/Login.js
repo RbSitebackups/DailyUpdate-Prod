@@ -178,6 +178,7 @@ const Login = () => {
                     value={values.name}
                     name='name'
                     onChange={handleChange}
+                    borderRadius={2}
                   />
                 </div>
               )}
@@ -204,6 +205,7 @@ const Login = () => {
                 value={values.email}
                 name='email'
                 onChange={handleChange}
+                borderRadius={2}
               />
               <FormLabel
                 ms='4px'
@@ -225,6 +227,7 @@ const Login = () => {
                 value={values.password}
                 name='password'
                 onChange={handleChange}
+                borderRadius={2}
               />
               <Button
                 fontSize='sm'
@@ -235,6 +238,7 @@ const Login = () => {
                 mb='24px'
                 type='submit'
                 isLoading={isLoading}
+                borderRadius={2}
               >
                 {values.isMember ? 'Sign In' : 'Register'}
               </Button>

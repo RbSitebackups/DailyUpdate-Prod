@@ -77,21 +77,19 @@ const ClientBox = ({ client, totalClients, custom_ind }) => {
               onClick={() => setSelectedClient(client._id, client.client_name)}
             />
           </Tooltip>
-          {user.isAdmin && (
-            <Tooltip label='View Assignee'>
-              <IconButton
-                icon={<ViewIcon />}
-                aria-label='Users'
-                colorScheme='green'
-                marginRight='0.5rem'
-                as={Link}
-                to='/userclient'
-                onClick={() =>
-                  setSelectedClient(client._id, client.client_name)
-                }
-              />
-            </Tooltip>
-          )}
+
+          <Tooltip label='View Assignee'>
+            <IconButton
+              icon={<ViewIcon />}
+              aria-label='Users'
+              colorScheme='green'
+              marginRight='0.5rem'
+              as={Link}
+              to='/userclient'
+              onClick={() => setSelectedClient(client._id, client.client_name)}
+            />
+          </Tooltip>
+
           <Tooltip label='Edit Client'>
             <IconButton
               icon={<EditIcon />}
@@ -101,16 +99,15 @@ const ClientBox = ({ client, totalClients, custom_ind }) => {
               onClick={() => setEditClient(client._id)}
             />
           </Tooltip>
-          {user.isAdmin && (
-            <Tooltip label='Delete Client'>
-              <IconButton
-                icon={<DeleteIcon />}
-                aria-label='Delete'
-                colorScheme='red'
-                onClick={handleDeleteClick}
-              />
-            </Tooltip>
-          )}
+
+          <Tooltip label='Delete Client'>
+            <IconButton
+              icon={<DeleteIcon />}
+              aria-label='Delete'
+              colorScheme='red'
+              onClick={handleDeleteClick}
+            />
+          </Tooltip>
         </Flex>
       </Flex>
       <AlertDialog // Remove isOpen prop from this component
