@@ -77,6 +77,15 @@ const Client = () => {
           borderRadius='md'
           boxShadow='md'
         >
+          <Heading
+            size='md'
+            color='red'
+          >
+            This will only have the client list assigned list for specific user.
+            <br />
+            Clients section will only have edit facility. <br />
+            Daily update will be a separate menu
+          </Heading>
           <ListClients />
         </Box>
 
