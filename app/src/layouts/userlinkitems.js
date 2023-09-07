@@ -30,34 +30,34 @@ const userlinkitems = [
     title: 'EDM Schedules',
     pgLink: '/listschedule',
   },
-  {
-    icon: MdCategory,
-    title: 'Category',
-    pgLink: '/category',
-  },
-  {
-    icon: MdOutlineStopScreenShare,
-    title: 'Blocker',
-    pgLink: '/blockers',
-  },
-  {
-    icon: ImCogs,
-    title: 'Preference',
-    iconOpened: MdOutlineKeyboardArrowUp,
-    iconClosed: MdOutlineKeyboardArrowDown,
-    subNav: [
-      {
-        icon: HiOutlineCog6Tooth,
-        title: 'Setting',
-        pgLink: '/setting',
-      },
-      {
-        icon: MdOutlineEditNote,
-        title: 'Change password',
-        pgLink: '/changepassword',
-      },
-    ],
-  },
+  // {
+  //   icon: MdCategory,
+  //   title: 'Category',
+  //   pgLink: '/category',
+  // },
+  // {
+  //   icon: MdOutlineStopScreenShare,
+  //   title: 'Blocker',
+  //   pgLink: '/blockers',
+  // },
+  // {
+  //   icon: ImCogs,
+  //   title: 'Preference',
+  //   iconOpened: MdOutlineKeyboardArrowUp,
+  //   iconClosed: MdOutlineKeyboardArrowDown,
+  //   subNav: [
+  //     {
+  //       icon: HiOutlineCog6Tooth,
+  //       title: 'Setting',
+  //       pgLink: '/setting',
+  //     },
+  //     {
+  //       icon: MdOutlineEditNote,
+  //       title: 'Change password',
+  //       pgLink: '/changepassword',
+  //     },
+  //   ],
+  // },
   {
     icon: MdLogout,
     title: 'Logout',

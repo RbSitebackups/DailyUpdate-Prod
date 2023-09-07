@@ -127,7 +127,7 @@ const Listschedule = () => {
       getSchedule()
     } else {
       // Trigger getIndSchedule() if the user is not an admin
-      getIndSchedule()
+      getUCSchedule()
     }
     getCampaignSuggestions()
     getEdmSuggestions()
@@ -145,7 +145,7 @@ const Listschedule = () => {
       }
     }
 
-    const intervalId = setInterval(handleCondition, 200)
+    const intervalId = setInterval(handleCondition, 300)
 
     return () => clearInterval(intervalId)
   }, [user.isAdmin, client])
@@ -292,7 +292,9 @@ const Listschedule = () => {
               >
                 {selectedClient && selectedClient.ClientName
                   ? selectedClient.ClientName
-                  : 'All Clients'}
+                  : user.isAdmin
+                  ? 'All Clients'
+                  : 'My Clients'}
               </MenuButton>
               <MenuList>
                 <MenuItem onClick={() => changeClient('', '', 'all')}>
@@ -565,7 +567,11 @@ const Listschedule = () => {
                           </Select>
                         ) : (
                           <Text
-                            bg='gray.300'
+                            bg={`#${
+                              client.find(
+                                (clientFind) => clientFind._id === row.client_id
+                              )?.bgcolor || 'gray.300'
+                            }`}
                             pt='5px'
                             pb='5px'
                             mb='5px'

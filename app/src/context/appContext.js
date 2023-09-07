@@ -1,6 +1,7 @@
 import React, { useContext, useReducer } from 'react'
 import reducers from './reducers'
 import axios from 'axios'
+import PastelColours from './../assets/colourcodes/PastelColours'
 
 import {
   DISPLAY_ALERT,
@@ -367,7 +368,39 @@ const AppProvider = ({ children }) => {
   /* ################# CATEGORY END ################### */
 
   /* ################# CLIENT ################### */
+  const getRandomPastelColour = async () => {
+    // Generate a random index within the array length
+    const randomIndex = Math.floor(Math.random() * PastelColours.length)
+
+    // Get the random pastel color code
+    const randomColour = PastelColours[randomIndex].code
+
+    try {
+      // Check if the color code already exists in the database
+      const { data } = await authFetch.get(
+        `/client/checkcolour/${randomColour}`
+      )
+      const { clientColour } = data
+
+      if (clientColour === null) {
+        // If it's not in the database, return the random color code
+        return randomColour
+      } else {
+        // If it's in the database, recursively call the function to generate a new color code
+        return getRandomPastelColour()
+      }
+    } catch (error) {
+      // Handle any errors here
+      console.error('Error checking color code:', error)
+
+      // You might want to decide what to do in case of an error, e.g., return an error value.
+      // For now, we'll return null to indicate an error.
+      return null
+    }
+  }
   const createClient = async () => {
+    const colourCode = await getRandomPastelColour()
+
     dispatch({ type: CREATE_CLIENT_BEGIN })
     try {
       const {
@@ -383,9 +416,11 @@ const AppProvider = ({ children }) => {
         contact_name,
         contact_email,
         contact_phone,
+        bgcolor: colourCode,
       })
       dispatch({ type: CREATE_CLIENT_SUCCESS })
       dispatch({ type: CLEAR_VALUES })
+      getClients()
     } catch (error) {
       if (error.response.status === 401) return
       dispatch({
@@ -417,6 +452,7 @@ const AppProvider = ({ children }) => {
     // console.log(`Set edit category : ${id}`)
   }
   const editClient = async () => {
+    const colourCode = await getRandomPastelColour()
     dispatch({ type: EDIT_CLIENT_BEGIN })
     try {
       const {
@@ -432,9 +468,11 @@ const AppProvider = ({ children }) => {
         contact_name,
         contact_email,
         contact_phone,
+        bgcolor: colourCode,
       })
       dispatch({ type: EDIT_CLIENT_SUCCESS })
       dispatch({ type: CLEAR_VALUES })
+      getClients()
     } catch (error) {
       if (error.response.status === 401) return
       dispatch({
