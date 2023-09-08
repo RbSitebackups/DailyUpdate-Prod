@@ -7,7 +7,9 @@ import {
 } from '../errors/index.js'
 
 const listClient = async (req, res) => {
-  const client = await Client.find()
+  const client = await Client.find().sort({
+    client_initials: 1, // 1 for ascending order
+  })
   res.status(StatusCodes.OK).json({
     client,
     totalClients: client.length,

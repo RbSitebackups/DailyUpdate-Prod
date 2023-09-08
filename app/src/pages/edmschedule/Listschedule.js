@@ -97,7 +97,8 @@ const Listschedule = () => {
   const [isEditingRow, setIsEditingRow] = useState(false)
   const [editedRowId, setEditedRowId] = useState(null)
   const [userClientCond, setUserClientCond] = useState([])
-  const [isOpen, setIsOpen] = useState(false)
+  const [isFirstMenuOpen, setIsFirstMenuOpen] = useState(false)
+  const [isSecondMenuOpen, setIsSecondMenuOpen] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
   const lsUserClient = JSON.parse(localStorage.getItem('userClient'))
 
@@ -284,12 +285,14 @@ const Listschedule = () => {
         <Flex justifyContent='space-between'>
           <Flex>
             <Menu
-              isOpen={isOpen}
-              onClose={() => setIsOpen(false)}
-              onOpen={() => setIsOpen(true)}
+              isOpen={isFirstMenuOpen}
+              onClose={() => setIsFirstMenuOpen(false)}
+              onOpen={() => setIsFirstMenuOpen(true)}
             >
               <MenuButton
-                rightIcon={isOpen ? <BsChevronUp /> : <BsChevronDown />}
+                rightIcon={
+                  isFirstMenuOpen ? <BsChevronUp /> : <BsChevronDown />
+                }
                 as={Button}
                 colorScheme='grey'
                 borderColor='black'
@@ -326,10 +329,16 @@ const Listschedule = () => {
               </MenuList>
             </Menu>
             {!selectedClient.ClientID && user.isAdmin && (
-              <Menu>
+              <Menu
+                isOpen={isSecondMenuOpen}
+                onClose={() => setIsSecondMenuOpen(false)}
+                onOpen={() => setIsSecondMenuOpen(true)}
+              >
                 <MenuButton
+                  rightIcon={
+                    isSecondMenuOpen ? <BsChevronUp /> : <BsChevronDown />
+                  }
                   as={Button}
-                  rightIcon={<BsChevronDown />}
                   colorScheme='grey'
                   borderColor='black'
                   borderRadius='50px'
