@@ -63,6 +63,16 @@ const getSchedulesByClientIds = async (req, res) => {
   // Parse the client_ids from the query parameters
   const clientIds = req.query.client_ids.split(',') // Split the comma-separated string into an array
 
+  // Check if clientIds is blank (empty or contains only whitespace)
+  if (clientIds.every((str) => !str.trim())) {
+    // If clientIds is blank, send an empty array and set totalEdmSchedules to 0
+    return res.status(StatusCodes.OK).json({
+      edmSchedule: [],
+      totalEdmSchedules: 0,
+      numOfPages: 1,
+    })
+  }
+
   // Use Mongoose to find schedules that match the client_ids
   const edmSchedule = await Schedule.find({
     client_id: { $in: clientIds },

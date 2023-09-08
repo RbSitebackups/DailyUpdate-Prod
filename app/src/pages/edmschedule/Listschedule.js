@@ -29,6 +29,7 @@ import {
   MenuList,
   MenuItem,
   Select,
+  Grid,
 } from '@chakra-ui/react'
 import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa'
 import { MdSave } from 'react-icons/md'
@@ -37,6 +38,13 @@ import { BsChevronDown, BsChevronUp } from 'react-icons/bs'
 import { FiRefreshCw } from 'react-icons/fi'
 import { DialogHelper, AutocompleteHelper, AlertHelper } from '../../components'
 import moment from 'moment'
+
+import {
+  AutoComplete,
+  AutoCompleteInput,
+  AutoCompleteItem,
+  AutoCompleteList,
+} from '@choc-ui/chakra-autocomplete'
 
 const Listschedule = () => {
   const formattedDate = new Date().toLocaleString('en-AU', {
@@ -91,6 +99,7 @@ const Listschedule = () => {
   const [userClientCond, setUserClientCond] = useState([])
   const [isOpen, setIsOpen] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
+  const lsUserClient = JSON.parse(localStorage.getItem('userClient'))
 
   const toggleFormVisibility = () => {
     setIsFormVisible((prevVisible) => !prevVisible)
@@ -113,24 +122,30 @@ const Listschedule = () => {
       getSchedule()
     } else if (!user.isAdmin && all === 'all') {
       // Trigger getUCSchedule() if the user is not an admin
-      getUCSchedule()
+      getUCSchedule(lsUserClient.assUserClient)
     } else if (all !== 'all') {
       // Trigger getIndSchedule() if the user is not an admin
       getIndSchedule()
     }
   }
 
-  useEffect(() => {
+  const pageLoadData = () => {
     // Check if the user is an admin
     if (user.isAdmin) {
       // Trigger getSchedule() if the user is an admin
       getSchedule()
     } else {
-      // Trigger getIndSchedule() if the user is not an admin
-      getUCSchedule()
+      // Trigger getUCSchedule(lsUserClient.assUserClient) if the user is not an admin
+      setTimeout(() => {
+        getUCSchedule(lsUserClient.assUserClient)
+      }, 500)
     }
     getCampaignSuggestions()
     getEdmSuggestions()
+  }
+
+  useEffect(() => {
+    pageLoadData()
     setSelectedClient('', '')
     getClients()
     getUserlist()
@@ -140,12 +155,12 @@ const Listschedule = () => {
     if (user.isAdmin) {
       setUserClientCond(client)
     } else {
-      setUserClientCond(userClient.assUserClient)
+      setUserClientCond(lsUserClient.assUserClient)
     }
-  }, [])
+  }, [user, client])
 
   const formatDate = (date) => {
-    return moment(date).format('DD/MM/YYYY - hh:mm a')
+    return moment(date).format('DD/MM/YYYY [\r\n]hh:mm a')
   }
 
   const handleSubmit = (e) => {
@@ -239,16 +254,7 @@ const Listschedule = () => {
 
     editSchedule(editedSchedule)
 
-    // Check if the user is an admin
-    if (user.isAdmin) {
-      // Trigger getSchedule() if the user is an admin
-      getSchedule()
-    } else {
-      // Trigger getIndSchedule() if the user is not an admin
-      getIndSchedule()
-    }
-    getCampaignSuggestions()
-    getEdmSuggestions()
+    pageLoadData()
 
     setIsEditingRow(false)
     setEditedRowId(null)
@@ -270,19 +276,26 @@ const Listschedule = () => {
           justify='space-between'
           w='100%'
         >
-          <>
+          <Heading>EDM Schedule</Heading>
+          <Text>
+            <strong>Date: {formattedDate}</strong>
+          </Text>
+        </Flex>
+        <Flex justifyContent='space-between'>
+          <Flex>
             <Menu
               isOpen={isOpen}
               onClose={() => setIsOpen(false)}
               onOpen={() => setIsOpen(true)}
             >
               <MenuButton
-                as={Button}
                 rightIcon={isOpen ? <BsChevronUp /> : <BsChevronDown />}
-                size='lg'
-                fontSize='22px'
-                p={0}
-                variant='unstyled'
+                as={Button}
+                colorScheme='grey'
+                borderColor='black'
+                borderRadius='50px'
+                variant='outline'
+                mr='10px'
               >
                 {selectedClient && selectedClient.ClientName
                   ? selectedClient.ClientName
@@ -295,30 +308,23 @@ const Listschedule = () => {
                   All Clients
                 </MenuItem>
                 {userClientCond &&
-                  userClientCond.map((client) => (
+                  userClientCond.map((clientLs) => (
                     <MenuItem
-                      key={client._id}
+                      key={clientLs._id}
                       onClick={() =>
                         changeClient(
-                          client.client_id !== undefined
-                            ? client.client_id
-                            : client._id,
-                          client.client_name
+                          clientLs.client_id !== undefined
+                            ? clientLs.client_id
+                            : clientLs._id,
+                          clientLs.client_name
                         )
                       }
                     >
-                      {client.client_initials} - {client.client_name}
+                      {clientLs.client_initials} - {clientLs.client_name}
                     </MenuItem>
                   ))}
               </MenuList>
             </Menu>
-          </>
-          <Text>
-            <strong>Date: {formattedDate}</strong>
-          </Text>
-        </Flex>
-        <Flex justifyContent='space-between'>
-          <Flex>
             {!selectedClient.ClientID && user.isAdmin && (
               <Menu>
                 <MenuButton
@@ -472,7 +478,7 @@ const Listschedule = () => {
               borderWidth='1px'
             >
               <Thead
-                background='green'
+                bg='darkslategray'
                 color='white'
               >
                 <Tr>
@@ -485,7 +491,7 @@ const Listschedule = () => {
                     Client
                   </Th>
                   <Th
-                    w='15%'
+                    w='12%'
                     color='white'
                     fontSize='16px'
                     whiteSpace='normal'
@@ -579,7 +585,6 @@ const Listschedule = () => {
                         )}
                       </Td>
                       <Td
-                        w='15%'
                         align='left'
                         whiteSpace='normal'
                       >
@@ -603,7 +608,9 @@ const Listschedule = () => {
                             }
                           />
                         ) : (
-                          <strong>{formatDate(row.date_to_send)}</strong>
+                          <Text whiteSpace='pre'>
+                            {formatDate(row.date_to_send)}
+                          </Text>
                         )}
                       </Td>
                       <Td
@@ -696,15 +703,20 @@ const Listschedule = () => {
                               )
                             }
                           >
-                            <option value='null'>None</option>
+                            <option value='none'>None</option>
                             {edmSchedule
-                              .filter((row3) => row._id !== row3._id) // Filter out rows with the same _id
+                              .filter((row3) => row._id !== row3._id)
                               .map((row3, index) => (
                                 <option
                                   key={index}
                                   value={row3._id}
                                 >
-                                  {row3.campaign_title} - {row3.edm_title}
+                                  [
+                                  {client.find(
+                                    (clientFind) =>
+                                      clientFind._id === row3.client_id
+                                  )?.client_initials || 'N/A'}
+                                  ] {row3.campaign_title} - {row3.edm_title}
                                 </option>
                               ))}
                           </Select>
@@ -742,15 +754,25 @@ const Listschedule = () => {
                                 )
 
                                 return (
-                                  <span key={index}>
+                                  <Text key={index}>
                                     <strong>
                                       {businessDays} BD |{' '}
                                       {calendarDaysDifference} CD |{' '}
                                       {weeksDifference} weeks
                                     </strong>{' '}
                                     <br />
-                                    {row2.campaign_title} - {row2.edm_title}
-                                  </span>
+                                    <Text
+                                      fontSize='13px'
+                                      color='gray.400'
+                                    >
+                                      [
+                                      {client.find(
+                                        (clientFind) =>
+                                          clientFind._id === row2.client_id
+                                      )?.client_initials || 'N/A'}
+                                      ] {row2.campaign_title} - {row2.edm_title}
+                                    </Text>
+                                  </Text>
                                 )
                               }
                               return null
@@ -843,7 +865,7 @@ const Listschedule = () => {
                 <Tbody>
                   <Tr>
                     <Td
-                      colSpan={6}
+                      colSpan={7}
                       textAlign='center'
                     >
                       <Text>No records found</Text>

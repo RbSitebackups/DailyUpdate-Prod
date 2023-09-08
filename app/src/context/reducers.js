@@ -174,7 +174,7 @@ const reducers = (state, action) => {
 
   if (action.type === LOGOUT_USER) {
     googleLogout()
-    return { ...initialState, user: null, token: null }
+    return { ...initialState, user: null, token: null, userClient: [] }
   }
 
   if (action.type === UPDATE_USER_BEGIN) {

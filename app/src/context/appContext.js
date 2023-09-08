@@ -73,7 +73,8 @@ const user = localStorage.getItem('user')
 const token = localStorage.getItem('token')
 const ClientID = sessionStorage.getItem('ClientID')
 const ClientName = sessionStorage.getItem('ClientName')
-const lsUserClient = JSON.parse(localStorage.getItem('userClient'))
+
+const lsUserClient = localStorage.getItem('userClient')
 const _selectedClient = { ClientID, ClientName }
 
 const initialState = {
@@ -106,7 +107,7 @@ const initialState = {
   totalRows: 0,
   selectedClient: _selectedClient ? _selectedClient : null,
   client_id: '',
-  userClient: lsUserClient ? lsUserClient : [],
+  userClient: lsUserClient ? JSON.parse(lsUserClient) : [],
 }
 
 const AppContext = React.createContext()
@@ -181,6 +182,7 @@ const AppProvider = ({ children }) => {
   const removeUserToLocalStorage = () => {
     localStorage.removeItem('user')
     localStorage.removeItem('token')
+    localStorage.removeItem('userClient')
   }
   const addUserClientToLocalStorage = (userClient) => {
     localStorage.setItem('userClient', JSON.stringify(userClient))
@@ -533,7 +535,7 @@ const AppProvider = ({ children }) => {
     try {
       const { data } = await authFetch.get(`/userclient/${cilent_id}`)
       const { rows, totalRows, numOfPages } = data
-      console.log(data.rows)
+
       dispatch({
         type: GET_USER_CLIENT_SUCCESS,
         payload: { rows, totalRows, numOfPages },
@@ -655,32 +657,41 @@ const AppProvider = ({ children }) => {
     clearAlert()
   }
 
-  const getUCSchedule = async () => {
+  const getUCSchedule = async (userClientData) => {
     // Assuming `lsUserClient` contains the array of client data you provided
 
     dispatch({ type: GET_IND_SCHEDULE_BEGIN })
     // Extract the client IDs from lsUserClient
-    const clientIds = lsUserClient.assUserClient.map(
-      (client) => client.client_id
-    )
+    let clientIds = []
+
+    if (userClientData && userClientData.length > 0) {
+      clientIds = userClientData.map((client) => client.client_id)
+    }
 
     try {
-      // Fetch schedules that match the client_ids
-      const { data } = await authFetch.get(`/schedule/alluserclient`, {
-        params: {
-          client_ids: clientIds.join(','), // Convert client IDs to comma-separated string
-        },
-      })
+      if (clientIds.length === 0) {
+        // lsUserClient is null or empty, dispatch empty edmSchedule and totalEdmSchedules = 0
+        dispatch({
+          type: GET_IND_SCHEDULE_SUCCESS,
+          payload: { edmSchedule: [], totalEdmSchedules: 0, numOfPages: 1 },
+        })
+      } else {
+        // Fetch schedules that match the client_ids
+        const { data } = await authFetch.get(`/schedule/alluserclient`, {
+          params: {
+            client_ids: clientIds.join(','), // Convert client IDs to comma-separated string
+          },
+        })
 
-      const { edmSchedule, totalEdmSchedules, numOfPages } = data
+        const { edmSchedule, totalEdmSchedules, numOfPages } = data
 
-      dispatch({
-        type: GET_IND_SCHEDULE_SUCCESS,
-        payload: { edmSchedule, totalEdmSchedules, numOfPages },
-      })
+        dispatch({
+          type: GET_IND_SCHEDULE_SUCCESS,
+          payload: { edmSchedule, totalEdmSchedules, numOfPages },
+        })
+      }
     } catch (error) {
-      // Handle error here
-      // logoutUser()
+      // Handle the error here
     }
 
     clearAlert()
@@ -759,7 +770,10 @@ const AppProvider = ({ children }) => {
         campaign_title: modifiedSchedule.campaign_title,
         edm_title: modifiedSchedule.edm_title,
         audience: modifiedSchedule.audience,
-        linked_edm: modifiedSchedule.linked_edm,
+        linked_edm:
+          modifiedSchedule.linked_edm === 'none'
+            ? null
+            : modifiedSchedule.linked_edm,
         client_id: modifiedSchedule.client_id,
       })
       dispatch({ type: EDIT_SCHEDULE_SUCCESS })

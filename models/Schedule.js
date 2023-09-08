@@ -15,6 +15,7 @@ const ScheduleSchema = new mongoose.Schema({
   linked_edm: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Schedule', // Reference to the Client model
+    required: false,
   },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
