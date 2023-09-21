@@ -20,6 +20,7 @@ const NavItem = ({
   const showSubnav = () => setTrigSubnav(!trigSubnav)
   const activeColor = '#E0B87C'
   const iconCenteredClass = navSize === true ? '' : 'centered-icon'
+  const fColor = active ? '#000' : '#fff'
 
   return (
     <Flex
@@ -40,6 +41,7 @@ const NavItem = ({
             _hover={{
               textDecor: 'none',
               bg: activeColor,
+              color: fColor,
             }}
             w={'100%'}
             as={ReactLink}
@@ -56,11 +58,13 @@ const NavItem = ({
                 as={icon}
                 fontSize='xl'
                 className={iconCenteredClass}
+                color={fColor}
               />
               <Text
                 ml={5}
                 display={navSize === true ? 'flex' : 'none'}
                 align='left'
+                color={fColor}
               >
                 {title}
               </Text>

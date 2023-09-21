@@ -9,6 +9,7 @@ import {
   MdFormatListBulletedAdd,
   MdLogout,
   MdMarkEmailUnread,
+  MdOutlineCampaign,
 } from 'react-icons/md'
 import { HiOutlineCog6Tooth } from 'react-icons/hi2'
 import { HiOutlineArchive } from 'react-icons/hi'
@@ -44,20 +45,26 @@ const linkitems = [
     ],
   },
   {
+    icon: MdCategory,
+    title: 'Category',
+    pgLink: '/category',
+  },
+  {
     icon: MdOutlineGroups,
     title: 'Clients',
     pgLink: '/client',
+  },
+  {
+    icon: MdOutlineCampaign,
+    title: 'Campaigns',
+    pgLink: '/campaigns',
   },
   {
     icon: MdMarkEmailUnread,
     title: 'EDM Schedules',
     pgLink: '/listschedule',
   },
-  {
-    icon: MdCategory,
-    title: 'Category',
-    pgLink: '/category',
-  },
+
   {
     icon: MdOutlineStopScreenShare,
     title: 'Blocker',

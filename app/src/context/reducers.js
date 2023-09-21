@@ -57,527 +57,239 @@ import {
   GET_IND_SCHEDULE_SUCCESS,
   GET_CAMPAIGN_TITLE_SUCCESS,
   GET_EDM_TITLE_SUCCESS,
+  GET_SOCIAL_TITLE_SUCCESS,
   EDIT_SCHEDULE_BEGIN,
   EDIT_SCHEDULE_ERROR,
   EDIT_SCHEDULE_SUCCESS,
   SETUP_USERCLIENT_SUCCESS,
   SETUP_USERCLIENT_ERROR,
+  GET_CAMPAIGN_BEGIN,
+  GET_CAMPAIGN_SUCCESS,
+  CREATE_CAMPAIGN_BEGIN,
+  CREATE_CAMPAIGN_SUCCESS,
+  CREATE_CAMPAIGN_ERROR,
+  EDIT_CAMPAIGN_SUCCESS,
+  EDIT_CAMPAIGN_ERROR,
+  CREATE_SOCIAL_BEGIN,
+  GET_IND_SOCIAL_BEGIN,
+  CREATE_SOCIAL_ERROR,
+  EDIT_SOCIAL_ERROR,
+  CREATE_SOCIAL_SUCCESS,
+  EDIT_SOCIAL_SUCCESS,
+  GET_IND_SOCIAL_SUCCESS,
 } from './actions'
 
-import { initialState } from './appContext'
+import { initialState as defaultInitialState } from './appContext'
 import { googleLogout } from '@react-oauth/google'
-
 const reducers = (state, action) => {
-  if (action.type === DISPLAY_ALERT) {
-    return {
-      ...state,
-      showAlert: true,
-      alertType: 'error',
-      alertTitle: 'Error',
-      alertText: 'Please provide all values',
-    }
+  const initialState = {
+    ...defaultInitialState,
+    user: null,
+    token: null,
+    userClient: [],
   }
+  switch (action.type) {
+    case DISPLAY_ALERT:
+      return {
+        ...state,
+        showAlert: true,
+        alertType: 'error',
+        alertTitle: 'Error',
+        alertText: 'Please provide all values',
+      }
 
-  if (action.type === CLEAR_ALERT) {
-    return {
-      ...state,
-      showAlert: false,
-      alertType: '',
-      alertTitle: '',
-      alertText: '',
-    }
-  }
+    case CLEAR_ALERT:
+      return {
+        ...state,
+        showAlert: false,
+        alertType: '',
+        alertTitle: '',
+        alertText: '',
+      }
 
-  if (action.type === DELETE_RECORD_SUCCESS) {
-    return {
-      ...state,
-      showDialog: false,
-      showAlert: true,
-      alertType: 'error',
-      alertTitle: 'Notification',
-      alertText: 'Record has been deleted.',
-    }
-  }
+    case DISPLAY_DIALOG:
+      return {
+        ...state,
+        showDialog: true,
+        rowID: action.payload._id,
+        endPointTarget: action.payload.endPoint,
+        callback: action.payload.callback,
+      }
 
-  if (action.type === DISPLAY_DIALOG) {
-    return {
-      ...state,
-      showDialog: true,
-      rowID: action.payload._id,
-      endPointTarget: action.payload.endPoint,
-      callback: action.payload.callback,
-    }
-  }
+    case HIDE_DIALOG:
+      return {
+        ...state,
+        showDialog: false,
+        rowID: '',
+        endPointTarget: '',
+        callback: '',
+      }
 
-  if (action.type === HIDE_DIALOG) {
-    return {
-      ...state,
-      showDialog: false,
-      rowID: '',
-      endPointTarget: '',
-      callback: '',
-    }
-  }
+    case SETUP_USER_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        token: action.payload.token,
+        user: action.payload.user,
+        showAlert: true,
+        alertType: 'success',
+        alertText: 'Redirecting...',
+        alertTitle: action.payload.alertText,
+      }
+    case DELETE_RECORD_BEGIN:
+      return {
+        ...state,
+        showDialog: true,
+        rowID: '',
+        endPointTarget: '',
+      }
+    case DELETE_RECORD_SUCCESS:
+      return {
+        ...state,
+        showDialog: false,
+        showAlert: true,
+        alertType: 'error',
+        alertTitle: 'Notification',
+        alertText: 'Record has been deleted.',
+      }
 
-  if (action.type === DELETE_RECORD_BEGIN) {
-    return {
-      ...state,
-      showDialog: true,
-      rowID: '',
-      endPointTarget: '',
-    }
-  }
+    case DELETE_RECORD_BEGIN:
+    case SETUP_USER_BEGIN:
+    case UPDATE_USER_BEGIN:
+    case CREATE_CATEGORY_BEGIN:
+    case EDIT_CATEGORY_BEGIN:
+    case CREATE_CLIENT_BEGIN:
+    case EDIT_CLIENT_BEGIN:
+    case CREATE_USER_CLIENT_BEGIN:
+    case GET_USER_CLIENT_BEGIN:
+    case GET_USERLIST_BEGIN:
+    case GET_PROGRESS_CATEGORY_BEGIN:
+    case FETCH_PROGRESS_BEGIN:
+    case CREATE_ADD_PROGRESS_BEGIN:
+    case CREATE_SCHEDULE_BEGIN:
+    case GET_IND_SCHEDULE_BEGIN:
+    case GET_CAMPAIGN_BEGIN:
+    case GET_CATEGORY_BEGIN:
+    case CREATE_CAMPAIGN_BEGIN:
+    case CREATE_SOCIAL_BEGIN:
+    case GET_IND_SOCIAL_BEGIN:
+      return { ...state, isLoading: true }
 
-  if (action.type === SETUP_USER_BEGIN) {
-    return { ...state, isLoading: true }
-  }
+    case DELETE_RECORD_SUCCESS:
 
-  if (action.type === SET_USER_CLIENT) {
-    return {
-      ...state,
-      selectedClient: action.payload,
-      client_id: action.payload.ClientID,
-    }
-  }
+    case UPDATE_USER_SUCCESS:
+    case CREATE_CATEGORY_SUCCESS:
+    case EDIT_CATEGORY_SUCCESS:
+    case CREATE_CLIENT_SUCCESS:
+    case EDIT_CLIENT_SUCCESS:
+    case CREATE_USER_CLIENT_SUCCESS:
+    case SETUP_USERCLIENT_SUCCESS:
+    case CREATE_ADD_PROGRESS_SUCCESS:
+    case CREATE_SCHEDULE_SUCCESS:
+    case EDIT_SCHEDULE_SUCCESS:
+    case CREATE_CAMPAIGN_SUCCESS:
+    case EDIT_CAMPAIGN_SUCCESS:
+    case CREATE_SOCIAL_SUCCESS:
+    case EDIT_SOCIAL_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        showAlert: true,
+        alertType: 'success',
+        alertTitle: action.payload?.alertText || 'Success',
+        alertText: action.payload?.msg || 'Operation successful',
+      }
 
-  if (action.type === SETUP_USER_SUCCESS) {
-    return {
-      ...state,
-      isLoading: false,
-      token: action.payload.token,
-      user: action.payload.user,
-      showAlert: true,
-      alertType: 'success',
-      alertText: 'Redirecting...',
-      alertTitle: action.payload.alertText,
-    }
-  }
+    case SETUP_USER_ERROR:
+    case UPDATE_USER_ERROR:
+    case CREATE_CATEGORY_ERROR:
+    case EDIT_CATEGORY_ERROR:
+    case CREATE_CLIENT_ERROR:
+    case EDIT_CLIENT_ERROR:
+    case CREATE_USER_CLIENT_ERROR:
+    case SETUP_USERCLIENT_ERROR:
+    case CREATE_ADD_PROGRESS_ERROR:
+    case CREATE_SCHEDULE_ERROR:
+    case EDIT_SCHEDULE_ERROR:
+    case CREATE_CAMPAIGN_ERROR:
+    case EDIT_CAMPAIGN_ERROR:
+    case CREATE_SOCIAL_ERROR:
+    case EDIT_SOCIAL_ERROR:
+      return {
+        ...state,
+        isLoading: false,
+        showAlert: true,
+        alertType: 'error',
+        alertTitle: 'Error',
+        alertText: action.payload.msg,
+      }
 
-  if (action.type === SETUP_USERCLIENT_SUCCESS) {
-    return {
-      ...state,
-      isLoading: false,
-      userClient: action.payload.assUserClient,
-    }
-  }
+    case HANDLE_CHANGE:
+      return { ...state, [action.payload.name]: action.payload.value }
 
-  if (action.type === SETUP_USER_ERROR) {
-    return {
-      ...state,
-      isLoading: false,
-      showAlert: true,
-      alertType: 'error',
-      alertText: action.payload.msg,
-      alertTitle: 'Error',
-    }
-  }
+    case CLEAR_VALUES:
+      const initialState = {
+        category_name: '',
+        client_name: '',
+        client_initials: '',
+        contact_name: '',
+        contact_email: '',
+        contact_phone: '',
+      }
+      return { ...state, ...initialState }
 
-  if (action.type === LOGOUT_USER) {
-    googleLogout()
-    return { ...initialState, user: null, token: null, userClient: [] }
-  }
+    case SET_USER_CLIENT:
+      return {
+        ...state,
+        selectedClient: action.payload,
+        client_id: action.payload.ClientID,
+      }
 
-  if (action.type === UPDATE_USER_BEGIN) {
-    return { ...state, isLoading: true }
-  }
+    case GET_CATEGORY_SUCCESS:
+    case GET_CLIENT_SUCCESS:
+    case GET_USER_CLIENT_SUCCESS:
+    case GET_USERLIST_SUCCESS:
+    case GET_PROGRESS_CATEGORY_SUCCESS:
+    case FETCH_PROGRESS_SUCCESS:
+    case GET_IND_SCHEDULE_SUCCESS:
+    case GET_IND_SOCIAL_SUCCESS:
+    case GET_CAMPAIGN_SUCCESS:
+    case GET_EDM_TITLE_SUCCESS:
+    case GET_SOCIAL_TITLE_SUCCESS:
+    case GET_CAMPAIGN_TITLE_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        ...action.payload,
+      }
 
-  if (action.type === UPDATE_USER_SUCCESS) {
-    return {
-      ...state,
-      isLoading: false,
-      token: action.payload.token,
-      user: action.payload.user,
-      showAlert: true,
-      alertType: 'success',
-      alertText: 'User profile updated.',
-      alertTitle: action.payload.alertText,
-    }
-  }
+    case SET_EDIT_CATEGORY:
+    case SET_EDIT_CLIENT:
+      const item = state[action.payload.listName].find(
+        (item) => item._id === action.payload.id
+      )
+      return {
+        ...state,
+        isEditing: true,
+        editID: action.payload.id,
+        ...item,
+      }
 
-  if (action.type === UPDATE_USER_ERROR) {
-    return {
-      ...state,
-      isLoading: false,
-      showAlert: true,
-      alertType: 'error',
-      alertText: action.payload.msg,
-      alertTitle: 'Error',
-    }
-  }
+    case LOGOUT_USER:
+      googleLogout()
+      return {
+        ...defaultInitialState,
+        user: null,
+        token: null,
+        userClient: [],
+      }
 
-  if (action.type === HANDLE_CHANGE) {
-    return { ...state, [action.payload.name]: action.payload.value }
-  }
+    case GET_CLIENT_BEGIN:
+      return { ...state, isLoading: true, showAlert: false }
 
-  if (action.type === CLEAR_VALUES) {
-    const initialState = {
-      category_name: '',
-      client_name: '',
-      client_initials: '',
-      contact_name: '',
-      contact_email: '',
-      contact_phone: '',
-    }
-    return { ...state, ...initialState }
+    default:
+      throw new Error(`no such action: ${action.type}`)
   }
-
-  if (action.type === CREATE_CATEGORY_BEGIN) {
-    return { ...state, isLoading: true }
-  }
-  if (action.type === CREATE_CATEGORY_ERROR) {
-    return {
-      ...state,
-      isLoading: false,
-      showAlert: true,
-      alertType: 'error',
-      alertText: action.payload.msg,
-      alertTitle: 'Error',
-    }
-  }
-  if (action.type === CREATE_CATEGORY_SUCCESS) {
-    return {
-      ...state,
-      isLoading: false,
-      showAlert: 'true',
-      alertType: 'success',
-      alertText: 'New category created.',
-      alertTitle: 'Success!',
-    }
-  }
-
-  if (action.type === GET_CATEGORY_BEGIN) {
-    return { ...state, isLoading: true, showAlert: false }
-  }
-
-  if (action.type === GET_CATEGORY_SUCCESS) {
-    return {
-      ...state,
-      isLoading: false,
-      category: action.payload.category,
-      totalCategories: action.payload.totalCategories,
-      numOfPages: action.payload.numOfPages,
-    }
-  }
-
-  if (action.type === SET_EDIT_CATEGORY) {
-    const category = state.category.find(
-      (category) => category._id === action.payload.id
-    )
-    const { _id, category_name } = category
-    return {
-      ...state,
-      isEditing: true,
-      editCategoryID: _id,
-      category_name,
-    }
-  }
-
-  if (action.type === DELETE_CATEGORY_BEGIN) {
-    return { ...state, isLoading: true }
-  }
-
-  if (action.type === EDIT_CATEGORY_BEGIN) {
-    return { ...state, isLoading: true }
-  }
-
-  if (action.type === EDIT_CATEGORY_SUCCESS) {
-    return {
-      ...state,
-      isLoading: false,
-      showAlert: true,
-      alertType: 'success',
-      alertText: 'Updated successfully',
-      alertTitle: 'Category',
-    }
-  }
-
-  if (action.type === EDIT_CATEGORY_ERROR) {
-    return {
-      ...state,
-      isLoading: false,
-      showAlert: true,
-      alertType: 'error',
-      alertText: action.payload.msg,
-      alertTitle: 'Error',
-    }
-  }
-
-  /* ######################### */
-
-  if (action.type === CREATE_CLIENT_BEGIN) {
-    return { ...state, isLoading: true }
-  }
-  if (action.type === CREATE_CLIENT_ERROR) {
-    return {
-      ...state,
-      isLoading: false,
-      showAlert: true,
-      alertType: 'error',
-      alertText: action.payload.msg,
-      alertTitle: 'Error',
-    }
-  }
-  if (action.type === CREATE_CLIENT_SUCCESS) {
-    return {
-      ...state,
-      isLoading: false,
-      showAlert: 'true',
-      alertType: 'success',
-      alertText: 'New client created.',
-      alertTitle: 'Success!',
-    }
-  }
-
-  if (action.type === GET_CLIENT_BEGIN) {
-    return { ...state, isLoading: true, showAlert: false }
-  }
-
-  if (action.type === GET_CLIENT_SUCCESS) {
-    return {
-      ...state,
-      isLoading: false,
-      client: action.payload.client,
-      totalClients: action.payload.totalClients,
-      numOfPages: action.payload.numOfPages,
-    }
-  }
-
-  if (action.type === SET_EDIT_CLIENT) {
-    const client = state.client.find(
-      (client) => client._id === action.payload.id
-    )
-    const {
-      _id,
-      client_name,
-      client_initials,
-      contact_name,
-      contact_email,
-      contact_phone,
-    } = client
-    return {
-      ...state,
-      isEditing: true,
-      editClientID: _id,
-      client_name,
-      client_initials,
-      contact_name,
-      contact_email,
-      contact_phone,
-    }
-  }
-
-  if (action.type === DELETE_CLIENT_BEGIN) {
-    return { ...state, isLoading: true }
-  }
-
-  if (action.type === EDIT_CLIENT_BEGIN) {
-    return { ...state, isLoading: true }
-  }
-
-  if (action.type === EDIT_CLIENT_SUCCESS) {
-    return {
-      ...state,
-      isLoading: false,
-      showAlert: true,
-      alertType: 'success',
-      alertText: 'Updated successfully',
-      alertTitle: 'Client',
-    }
-  }
-
-  if (action.type === EDIT_CLIENT_ERROR) {
-    return {
-      ...state,
-      isLoading: false,
-      showAlert: true,
-      alertType: 'error',
-      alertText: action.payload.msg,
-      alertTitle: 'Error',
-    }
-  }
-
-  if (action.type === CREATE_USER_CLIENT_BEGIN) {
-    return { ...state, isLoading: true }
-  }
-
-  if (action.type === CREATE_USER_CLIENT_SUCCESS) {
-    return {
-      ...state,
-      isLoading: false,
-      showAlert: true,
-      alertType: 'success',
-      alertText: 'Updated successfully',
-      alertTitle: 'User assignment',
-    }
-  }
-
-  if (action.type === CREATE_USER_CLIENT_ERROR) {
-    return {
-      ...state,
-      isLoading: false,
-      showAlert: true,
-      alertType: 'error',
-      alertText: action.payload.msg,
-      alertTitle: 'Error',
-    }
-  }
-
-  if (action.type === GET_USER_CLIENT_BEGIN) {
-    return { ...state, isLoading: true, showAlert: false }
-  }
-
-  if (action.type === GET_USER_CLIENT_SUCCESS) {
-    return {
-      ...state,
-      isLoading: false,
-      rows: action.payload.rows,
-      totalRows: action.payload.totalRows,
-      numOfPages: action.payload.numOfPages,
-    }
-  }
-
-  if (action.type === GET_USERLIST_BEGIN) {
-    return { ...state, isLoading: true, showAlert: false }
-  }
-
-  if (action.type === GET_USERLIST_SUCCESS) {
-    return {
-      ...state,
-      isLoading: false,
-      userlist: action.payload.userlist,
-    }
-  }
-
-  if (action.type === GET_PROGRESS_CATEGORY_BEGIN) {
-    return { ...state, isLoading: true, showAlert: false }
-  }
-
-  if (action.type === GET_PROGRESS_CATEGORY_SUCCESS) {
-    return {
-      ...state,
-      isLoading: false,
-      dist_categories: action.payload.dist_categories,
-    }
-  }
-
-  if (action.type === DELETE_USER_CLIENT_BEGIN) {
-    return { ...state, isLoading: true }
-  }
-
-  if (action.type === FETCH_PROGRESS_BEGIN) {
-    return { ...state, isLoading: true, showAlert: false }
-  }
-
-  if (action.type === FETCH_PROGRESS_SUCCESS) {
-    return {
-      ...state,
-      isLoading: false,
-      dailyUpdates: action.payload.dailyUpdates,
-    }
-  }
-
-  if (action.type === CREATE_ADD_PROGRESS_BEGIN) {
-    return { ...state, isLoading: true }
-  }
-
-  if (action.type === CREATE_ADD_PROGRESS_SUCCESS) {
-    return {
-      ...state,
-      isLoading: false,
-      showAlert: true,
-      alertType: 'success',
-      alertText: 'Addeded successfully',
-      alertTitle: 'Update',
-    }
-  }
-
-  if (action.type === CREATE_ADD_PROGRESS_ERROR) {
-    return {
-      ...state,
-      isLoading: false,
-      showAlert: true,
-      alertType: 'error',
-      alertText: action.payload.msg,
-      alertTitle: 'Error',
-    }
-  }
-
-  if (action.type === CREATE_SCHEDULE_BEGIN) {
-    return { ...state, isLoading: true }
-  }
-
-  if (action.type === CREATE_SCHEDULE_SUCCESS) {
-    return {
-      ...state,
-      isLoading: false,
-      showAlert: true,
-      alertType: 'success',
-      alertText: 'Addeded successfully',
-      alertTitle: 'Update',
-    }
-  }
-
-  if (action.type === CREATE_SCHEDULE_ERROR) {
-    return {
-      ...state,
-      isLoading: false,
-      showAlert: true,
-      alertType: 'error',
-      alertText: action.payload.msg,
-      alertTitle: 'Error',
-    }
-  }
-
-  if (action.type === GET_IND_SCHEDULE_BEGIN) {
-    return { ...state, isLoading: true, showAlert: false }
-  }
-
-  if (action.type === GET_IND_SCHEDULE_SUCCESS) {
-    return {
-      ...state,
-      isLoading: false,
-      edmSchedule: action.payload.edmSchedule,
-      numOfPages: action.payload.numOfPages,
-      totalEdmSchedules: action.payload.totalEdmSchedules,
-    }
-  }
-
-  if (action.type === GET_CAMPAIGN_TITLE_SUCCESS) {
-    return {
-      ...state,
-      campaignSuggestions: action.payload.campaignSuggestions,
-    }
-  }
-
-  if (action.type === GET_EDM_TITLE_SUCCESS) {
-    return {
-      ...state,
-      edmSuggestions: action.payload.edmSuggestions,
-    }
-  }
-
-  if (action.type === EDIT_SCHEDULE_SUCCESS) {
-    return {
-      ...state,
-      isLoading: false,
-      showAlert: true,
-      alertType: 'success',
-      alertText: 'Updated successfully',
-      alertTitle: 'Schedule',
-    }
-  }
-
-  if (action.type === EDIT_SCHEDULE_ERROR) {
-    return {
-      ...state,
-      isLoading: false,
-      showAlert: true,
-      alertType: 'error',
-      alertText: action.payload.msg,
-      alertTitle: 'Error',
-    }
-  }
-
-  throw new Error(`no such action: ${action.type}`)
 }
+
 export default reducers

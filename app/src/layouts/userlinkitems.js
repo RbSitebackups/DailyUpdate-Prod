@@ -9,6 +9,7 @@ import {
   MdFormatListBulletedAdd,
   MdMarkEmailUnread,
   MdLogout,
+  MdOutlineCampaign,
 } from 'react-icons/md'
 import { HiOutlineCog6Tooth } from 'react-icons/hi2'
 import { HiOutlineArchive } from 'react-icons/hi'
@@ -24,6 +25,11 @@ const userlinkitems = [
     icon: MdOutlineGroups,
     title: 'Clients',
     pgLink: '/client',
+  },
+  {
+    icon: MdOutlineCampaign,
+    title: 'Campaigns',
+    pgLink: '/campaigns',
   },
   {
     icon: MdMarkEmailUnread,

@@ -123,8 +123,8 @@ const getSchedulesByAssignedId = async (req, res) => {
 }
 
 const addSchedule = async (req, res) => {
-  const { date_to_send, campaign_title, edm_title } = req.body
-  if (!date_to_send || !campaign_title || !edm_title) {
+  const { date_to_send, campaign_id, edm_title } = req.body
+  if (!date_to_send || !campaign_id || !edm_title) {
     throw new BadRequestError('Please provide the value!')
   }
 
@@ -135,9 +135,9 @@ const addSchedule = async (req, res) => {
 
 const editSchedule = async (req, res) => {
   const { id: scheduleID } = req.params
-  const { date_to_send, campaign_title, edm_title, client_id } = req.body
+  const { date_to_send, campaign_id, edm_title, client_id } = req.body
 
-  if (!date_to_send || !campaign_title || !edm_title || !client_id) {
+  if (!date_to_send || !campaign_id || !edm_title || !client_id) {
     throw new BadRequestError('Please provide the value!')
   }
 

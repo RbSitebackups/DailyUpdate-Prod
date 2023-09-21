@@ -19,6 +19,8 @@ import progressRouter from './routes/progressRoutes.js'
 import clientRouter from './routes/clientRoutes.js'
 import userClientRouter from './routes/userClientRoutes.js'
 import scheduleRouter from './routes/scheduleRoutes.js'
+import campaignRouter from './routes/campaignRoutes.js'
+import socialRouter from './routes/socialRoutes.js'
 
 // MIDDLEWARE
 import notFoundMiddleware from './middleware/not-found.js'
@@ -26,7 +28,7 @@ import errorHandlerMiddleware from './middleware/error-handler.js'
 import authenticateUser from './middleware/auth.js'
 
 if (process.env.NODE_ENV !== 'production') {
-    app.use(morgan('dev'))
+  app.use(morgan('dev'))
 }
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -40,9 +42,11 @@ app.use('/api/v1/prog', authenticateUser, progressRouter)
 app.use('/api/v1/client', authenticateUser, clientRouter)
 app.use('/api/v1/userclient', authenticateUser, userClientRouter)
 app.use('/api/v1/schedule', authenticateUser, scheduleRouter)
+app.use('/api/v1/social', authenticateUser, socialRouter)
+app.use('/api/v1/campaign', authenticateUser, campaignRouter)
 
 app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, './app/build', 'index.html'))
+  res.sendFile(path.resolve(__dirname, './app/build', 'index.html'))
 })
 
 app.use(notFoundMiddleware)
@@ -51,14 +55,14 @@ app.use(errorHandlerMiddleware)
 const port = process.env.PORT || 5000
 
 const start = async () => {
-    try {
-        await connectDB(process.env.MONGO_URL)
-        app.listen(port, () => {
-            console.log(`server is listening ${port}`)
-        })
-    } catch (error) {
-        console.log(error)
-    }
+  try {
+    await connectDB(process.env.MONGO_URL)
+    app.listen(port, () => {
+      console.log(`server is listening ${port}`)
+    })
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 start()

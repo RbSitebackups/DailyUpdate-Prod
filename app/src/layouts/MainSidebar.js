@@ -7,8 +7,8 @@ import linkitems from './linkitems'
 import userlinkitems from './userlinkitems'
 import { useAppContext } from '../context/appContext'
 
-const MainSidebar = ({ navSize }) => {
-  const { logoutUser, user } = useAppContext()
+const MainSidebar = ({ navSize, location }) => {
+  const { logoutUser, user, hideSidebar } = useAppContext()
 
   return (
     <Flex
@@ -20,6 +20,7 @@ const MainSidebar = ({ navSize }) => {
       justifyContent='space-between'
       bg='blackAlpha.800'
       color='white'
+      display={hideSidebar === true ? 'none' : ''}
     >
       <Flex
         flexDir='column'
@@ -33,6 +34,7 @@ const MainSidebar = ({ navSize }) => {
                 item
               return (
                 <NavItem
+                  active={location.pathname === pgLink}
                   navSize={navSize}
                   icon={icon}
                   title={title}

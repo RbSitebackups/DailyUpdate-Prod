@@ -67,6 +67,21 @@ import {
   EDIT_SCHEDULE_SUCCESS,
   SETUP_USERCLIENT_SUCCESS,
   SETUP_USERCLIENT_ERROR,
+  GET_CAMPAIGN_BEGIN,
+  GET_CAMPAIGN_SUCCESS,
+  CREATE_CAMPAIGN_BEGIN,
+  CREATE_CAMPAIGN_SUCCESS,
+  CREATE_CAMPAIGN_ERROR,
+  EDIT_CAMPAIGN_SUCCESS,
+  EDIT_CAMPAIGN_ERROR,
+  CREATE_SOCIAL_BEGIN,
+  CREATE_SOCIAL_SUCCESS,
+  CREATE_SOCIAL_ERROR,
+  GET_IND_SOCIAL_BEGIN,
+  GET_IND_SOCIAL_SUCCESS,
+  EDIT_SOCIAL_SUCCESS,
+  EDIT_SOCIAL_ERROR,
+  GET_SOCIAL_TITLE_SUCCESS,
 } from './actions'
 
 const user = localStorage.getItem('user')
@@ -78,6 +93,7 @@ const lsUserClient = localStorage.getItem('userClient')
 const _selectedClient = { ClientID, ClientName }
 
 const initialState = {
+  hideSidebar: true,
   isLoading: false,
   showAlert: false,
   showDialog: false,
@@ -108,6 +124,7 @@ const initialState = {
   selectedClient: _selectedClient ? _selectedClient : null,
   client_id: '',
   userClient: lsUserClient ? JSON.parse(lsUserClient) : [],
+  edmSuggestions: [],
 }
 
 const AppContext = React.createContext()
@@ -158,6 +175,7 @@ const AppProvider = ({ children }) => {
 
   const handleDelete = (_id, endPoint, callback) => {
     dispatch({ type: DISPLAY_DIALOG, payload: { _id, endPoint, callback } })
+    clearAlert()
   }
 
   const hideDialog = () => {
@@ -624,7 +642,7 @@ const AppProvider = ({ children }) => {
     try {
       await authFetch.post('/schedule', {
         date_to_send: scheduleData.date_to_send,
-        campaign_title: scheduleData.campaignTitle,
+        campaign_id: scheduleData.campaignID,
         edm_title: scheduleData.edmTitle,
         audience: scheduleData.audience,
         client_id: client_id,
@@ -733,21 +751,6 @@ const AppProvider = ({ children }) => {
     }
   }
 
-  const getCampaignSuggestions = async () => {
-    try {
-      const { data } = await authFetch.get(`/schedule/ctitles`)
-      const { campaignSuggestions } = data
-
-      dispatch({
-        type: GET_CAMPAIGN_TITLE_SUCCESS,
-        payload: { campaignSuggestions },
-      })
-    } catch (error) {
-      // logoutUser()
-    }
-    clearAlert()
-  }
-
   const getEdmSuggestions = async () => {
     try {
       const { data } = await authFetch.get(`/schedule/etitles`)
@@ -755,7 +758,7 @@ const AppProvider = ({ children }) => {
 
       dispatch({
         type: GET_EDM_TITLE_SUCCESS,
-        payload: { edmSuggestions },
+        payload: { edmSuggestions: edmSuggestions || [] },
       })
     } catch (error) {
       // logoutUser()
@@ -767,13 +770,10 @@ const AppProvider = ({ children }) => {
     try {
       await authFetch.patch(`/schedule/${modifiedSchedule._id}`, {
         date_to_send: modifiedSchedule.date_to_send,
-        campaign_title: modifiedSchedule.campaign_title,
+        campaign_id: modifiedSchedule.campaign_id,
         edm_title: modifiedSchedule.edm_title,
         audience: modifiedSchedule.audience,
-        linked_edm:
-          modifiedSchedule.linked_edm === 'none'
-            ? null
-            : modifiedSchedule.linked_edm,
+
         client_id: modifiedSchedule.client_id,
       })
       dispatch({ type: EDIT_SCHEDULE_SUCCESS })
@@ -787,6 +787,314 @@ const AppProvider = ({ children }) => {
   }
 
   /* ################# EDM SCHEDULE END ################### */
+  /* ################# CAMPAIGN START ################### */
+
+  const getCampaigns = async () => {
+    dispatch({ type: GET_CAMPAIGN_BEGIN })
+    try {
+      const { data } = await authFetch.get(`/campaign`)
+      const { campaigns, totalCampaigns, numOfPages } = data
+
+      dispatch({
+        type: GET_CAMPAIGN_SUCCESS,
+        payload: { campaigns, totalCampaigns, numOfPages },
+      })
+    } catch (error) {
+      // logoutUser()
+    }
+    clearAlert()
+  }
+
+  const getUCCampaign = async (userClientData) => {
+    // Assuming `lsUserClient` contains the array of client data you provided
+
+    dispatch({ type: GET_CAMPAIGN_BEGIN })
+    // Extract the client IDs from lsUserClient
+    let clientIds = []
+
+    if (userClientData && userClientData.length > 0) {
+      clientIds = userClientData.map((client) => client.client_id)
+    }
+
+    try {
+      if (clientIds.length === 0) {
+        // lsUserClient is null or empty, dispatch empty campaigns and totalCampaigns = 0
+        dispatch({
+          type: GET_CAMPAIGN_SUCCESS,
+          payload: { campaigns: [], totalCampaigns: 0, numOfPages: 1 },
+        })
+      } else {
+        // Fetch schedules that match the client_ids
+        const { data } = await authFetch.get(`/campaign/alluserclient`, {
+          params: {
+            client_ids: clientIds.join(','), // Convert client IDs to comma-separated string
+          },
+        })
+
+        const { campaigns, totalCampaigns, numOfPages } = data
+
+        dispatch({
+          type: GET_CAMPAIGN_SUCCESS,
+          payload: { campaigns, totalCampaigns, numOfPages },
+        })
+      }
+    } catch (error) {
+      // Handle the error here
+    }
+
+    clearAlert()
+  }
+
+  const getCampaignByAssignedId = async (userID) => {
+    const assigned_id = userID
+
+    dispatch({ type: GET_CAMPAIGN_BEGIN })
+    try {
+      const { data } = await authFetch.get(
+        `/campaign/allassignedclient/${assigned_id}`
+      )
+      const { campaigns, totalCampaigns, numOfPages } = data
+
+      dispatch({
+        type: GET_CAMPAIGN_SUCCESS,
+        payload: { campaigns, totalCampaigns, numOfPages },
+      })
+    } catch (error) {
+      // logoutUser()
+    }
+  }
+
+  const getIndCampaign = async () => {
+    const client_id = sessionStorage.getItem('ClientID')
+
+    dispatch({ type: GET_CAMPAIGN_BEGIN })
+    try {
+      const { data } = await authFetch.get(`/campaign/${client_id}`)
+      const { campaigns, totalCampaigns, numOfPages } = data
+
+      dispatch({
+        type: GET_CAMPAIGN_SUCCESS,
+        payload: { campaigns, totalCampaigns, numOfPages },
+      })
+    } catch (error) {
+      // logoutUser()
+    }
+  }
+
+  const addCampaign = async (scheduleData) => {
+    const client_id =
+      scheduleData.clientID || sessionStorage.getItem('ClientID')
+    dispatch({ type: CREATE_CAMPAIGN_BEGIN })
+    try {
+      await authFetch.post('/campaign', {
+        campaign_title: scheduleData.campaignTitle,
+        campaign_desc: scheduleData.campaign_desc,
+        client_id: client_id,
+        campaign_startdate: scheduleData.campaignStartDate,
+        campaign_enddate: scheduleData.campaignEndDate,
+        campaign_eventdate: scheduleData.campaignEventDate,
+      })
+      dispatch({ type: CREATE_CAMPAIGN_SUCCESS })
+      dispatch({ type: CLEAR_VALUES })
+    } catch (error) {
+      if (error.response.status === 401) return
+      dispatch({
+        type: CREATE_CAMPAIGN_ERROR,
+        payload: { msg: error.response.data.msg },
+      })
+    }
+    clearAlert()
+  }
+
+  const editCampaign = async (modifiedCampaign) => {
+    try {
+      await authFetch.patch(`/campaign/${modifiedCampaign._id}`, {
+        campaign_title: modifiedCampaign.campaign_title,
+        campaign_desc: modifiedCampaign.campaign_desc,
+        client_id: modifiedCampaign.client_id,
+        campaign_startdate: modifiedCampaign.campaignStartDate,
+        campaign_enddate: modifiedCampaign.campaignEndDate,
+        campaign_eventdate: modifiedCampaign.campaignEventDate,
+      })
+      dispatch({ type: EDIT_CAMPAIGN_SUCCESS })
+    } catch (error) {
+      if (error.response.status === 401) return
+      dispatch({
+        type: EDIT_CAMPAIGN_ERROR,
+        payload: { msg: error.response.data.msg },
+      })
+    }
+  }
+
+  const getCampaignSuggestions = async () => {
+    try {
+      const { data } = await authFetch.get(`/campaign/ctitles`)
+      const { campaignSuggestions } = data
+
+      dispatch({
+        type: GET_CAMPAIGN_TITLE_SUCCESS,
+        payload: { campaignSuggestions },
+      })
+    } catch (error) {
+      // logoutUser()
+    }
+    clearAlert()
+  }
+
+  /* ################# CAMPAIGN END ################### */
+  /* ################# EDM Social Start ################### */
+
+  const addSocial = async (SocialData) => {
+    const client_id = SocialData.clientID || sessionStorage.getItem('ClientID')
+    dispatch({ type: CREATE_SOCIAL_BEGIN })
+    try {
+      await authFetch.post('/social', {
+        date_to_send: SocialData.date_to_send,
+        campaign_id: SocialData.campaignID,
+        social_title: SocialData.socialTitle,
+        audience: SocialData.audience,
+        client_id: client_id,
+      })
+      dispatch({ type: CREATE_SOCIAL_SUCCESS })
+      dispatch({ type: CLEAR_VALUES })
+    } catch (error) {
+      if (error.response.status === 401) return
+      dispatch({
+        type: CREATE_SOCIAL_ERROR,
+        payload: { msg: error.response.data.msg },
+      })
+    }
+    clearAlert()
+  }
+
+  const getSocial = async () => {
+    dispatch({ type: GET_IND_SOCIAL_BEGIN })
+    try {
+      const { data } = await authFetch.get(`/social`)
+      const { socials, totalSocials, numOfPages } = data
+
+      dispatch({
+        type: GET_IND_SOCIAL_SUCCESS,
+        payload: { socials, totalSocials, numOfPages },
+      })
+    } catch (error) {
+      // logoutUser()
+    }
+    clearAlert()
+  }
+
+  const getUCSocial = async (userClientData) => {
+    // Assuming `lsUserClient` contains the array of client data you provided
+
+    dispatch({ type: GET_IND_SOCIAL_BEGIN })
+    // Extract the client IDs from lsUserClient
+    let clientIds = []
+
+    if (userClientData && userClientData.length > 0) {
+      clientIds = userClientData.map((client) => client.client_id)
+    }
+
+    try {
+      if (clientIds.length === 0) {
+        // lsUserClient is null or empty, dispatch empty socials and totalSocials = 0
+        dispatch({
+          type: GET_IND_SOCIAL_SUCCESS,
+          payload: { socials: [], totalSocials: 0, numOfPages: 1 },
+        })
+      } else {
+        // Fetch Socials that match the client_ids
+        const { data } = await authFetch.get(`/social/alluserclient`, {
+          params: {
+            client_ids: clientIds.join(','), // Convert client IDs to comma-separated string
+          },
+        })
+
+        const { socials, totalSocials, numOfPages } = data
+
+        dispatch({
+          type: GET_IND_SOCIAL_SUCCESS,
+          payload: { socials, totalSocials, numOfPages },
+        })
+      }
+    } catch (error) {
+      // Handle the error here
+    }
+
+    clearAlert()
+  }
+
+  const getIndSocial = async () => {
+    const client_id = sessionStorage.getItem('ClientID')
+
+    dispatch({ type: GET_IND_SOCIAL_BEGIN })
+    try {
+      const { data } = await authFetch.get(`/social/${client_id}`)
+      const { socials, totalSocials, numOfPages } = data
+
+      dispatch({
+        type: GET_IND_SOCIAL_SUCCESS,
+        payload: { socials, totalSocials, numOfPages },
+      })
+    } catch (error) {
+      // logoutUser()
+    }
+  }
+
+  const getSocialsByAssignedId = async (userID) => {
+    const assigned_id = userID
+
+    dispatch({ type: GET_IND_SOCIAL_BEGIN })
+    try {
+      const { data } = await authFetch.get(
+        `/social/allassignedclient/${assigned_id}`
+      )
+      const { socials, totalSocials, numOfPages } = data
+
+      dispatch({
+        type: GET_IND_SOCIAL_SUCCESS,
+        payload: { socials, totalSocials, numOfPages },
+      })
+    } catch (error) {
+      // logoutUser()
+    }
+  }
+
+  const editSocial = async (modifiedSocial) => {
+    try {
+      await authFetch.patch(`/social/${modifiedSocial._id}`, {
+        date_to_send: modifiedSocial.date_to_send,
+        campaign_id: modifiedSocial.campaign_id,
+        social_title: modifiedSocial.social_title,
+        audience: modifiedSocial.audience,
+
+        client_id: modifiedSocial.client_id,
+      })
+      dispatch({ type: EDIT_SOCIAL_SUCCESS })
+    } catch (error) {
+      if (error.response.status === 401) return
+      dispatch({
+        type: EDIT_SOCIAL_ERROR,
+        payload: { msg: error.response.data.msg },
+      })
+    }
+  }
+
+  const getSocialSuggestions = async () => {
+    try {
+      const { data } = await authFetch.get(`/social/stitles`)
+      const { socialSuggestions } = data
+
+      dispatch({
+        type: GET_SOCIAL_TITLE_SUCCESS,
+        payload: { socialSuggestions: socialSuggestions || [] },
+      })
+    } catch (error) {
+      // logoutUser()
+    }
+    clearAlert()
+  }
+
+  /* ################# EDM Social END ################### */
 
   return (
     <AppContext.Provider
@@ -830,6 +1138,19 @@ const AppProvider = ({ children }) => {
         getSchedule,
         getUCSchedule,
         getSchedulesByAssignedId,
+        getCampaigns,
+        getUCCampaign,
+        getCampaignByAssignedId,
+        getIndCampaign,
+        addCampaign,
+        editCampaign,
+        addSocial,
+        getSocial,
+        getUCSocial,
+        getIndSocial,
+        getSocialsByAssignedId,
+        editSocial,
+        getSocialSuggestions,
       }}
     >
       {children}

@@ -17,7 +17,7 @@ import { ThemeEditor } from './ThemeEditor'
 import { useAppContext } from '../context/appContext'
 import { Link as ReactLink } from 'react-router-dom'
 
-const TopNavBar = () => {
+const TopNavBar = ({ location }) => {
   const { user, logoutUser } = useAppContext()
 
   const navbarIcon = useColorModeValue('gray.400', 'white')
@@ -29,12 +29,74 @@ const TopNavBar = () => {
     '14px 17px 40px 4px rgba(112, 144, 176, 0.18)',
     '14px 17px 40px 4px rgba(112, 144, 176, 0.06)'
   )
+
+  const activeColor = '#E0B87C'
+  const fColor = '#fff'
   const borderButton = useColorModeValue('secondaryGray.500', 'whiteAlpha.200')
   return (
     <Flex
       alignItems='center'
       alignContent='center'
     >
+      <Link
+        as={ReactLink}
+        to='/'
+        bg={location.pathname === '/' ? activeColor : 'transparent'}
+        p='3'
+        color='white'
+        _hover={{
+          textDecor: 'none',
+          bg: activeColor,
+          color: fColor,
+        }}
+      >
+        Dashboard
+      </Link>
+
+      <Link
+        as={ReactLink}
+        to='/campaigns'
+        bg={location.pathname === '/campaigns' ? activeColor : 'transparent'}
+        p='3'
+        color='white'
+        _hover={{
+          textDecor: 'none',
+          bg: activeColor,
+          color: fColor,
+        }}
+      >
+        Campaigns
+      </Link>
+
+      <Link
+        as={ReactLink}
+        to='/listschedule'
+        bg={location.pathname === '/listschedule' ? activeColor : 'transparent'}
+        p='3'
+        color='white'
+        _hover={{
+          textDecor: 'none',
+          bg: activeColor,
+          color: fColor,
+        }}
+      >
+        EDMs
+      </Link>
+
+      <Link
+        as={ReactLink}
+        to='/social'
+        bg={location.pathname === '/social' ? activeColor : 'transparent'}
+        p='3'
+        color='white'
+        _hover={{
+          textDecor: 'none',
+          bg: activeColor,
+          color: fColor,
+        }}
+      >
+        Social
+      </Link>
       {/* <Menu>
                 <MenuButton p='0px'>
                     <Icon
@@ -159,7 +221,10 @@ const TopNavBar = () => {
             <ThemeEditor navbarIcon={navbarIcon} /> */}
 
       <Menu>
-        <MenuButton p='0px'>
+        <MenuButton
+          p='0px'
+          ml='40px'
+        >
           <Avatar
             _hover={{ cursor: 'pointer' }}
             color='white'
@@ -200,7 +265,7 @@ const TopNavBar = () => {
             flexDirection='column'
             p='10px'
           >
-            <MenuItem
+            {/* <MenuItem
               _hover={{ bg: 'none' }}
               _focus={{ bg: 'none' }}
               borderRadius='8px'
@@ -216,8 +281,8 @@ const TopNavBar = () => {
               borderRadius='8px'
               px='14px'
             >
-              <Text fontSize='sm'>Newsletter Settings</Text>
-            </MenuItem>
+              <Text fontSize='sm'>Newsletter Settings</Text> 
+            </MenuItem>*/}
             <MenuItem
               _hover={{ bg: 'none' }}
               _focus={{ bg: 'none' }}

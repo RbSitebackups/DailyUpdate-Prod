@@ -41,7 +41,7 @@ import moment from 'moment'
 import Select from 'react-select'
 import { SlRefresh } from 'react-icons/sl'
 
-const Listschedule = () => {
+const Social = () => {
   const formattedDate = new Date().toLocaleString('en-AU', {
     weekday: 'long',
     year: 'numeric',
@@ -53,42 +53,42 @@ const Listschedule = () => {
   const {
     selectedClient,
     isEditing,
-    addSchedule,
-    edmSchedule,
-    getIndSchedule,
-    totalEdmSchedules,
+    addSocial,
+    socials,
+    getIndSocial,
+    totalSocials,
     handleDelete,
     showDialog,
     getCampaignSuggestions,
     campaignSuggestions,
-    edmSuggestions,
-    getEdmSuggestions,
-    editSchedule,
+    socialSuggestions,
+    getSocialSuggestions,
+    editSocial,
     showAlert,
     user,
-    getSchedule,
+    getSocial,
     setSelectedClient,
     userClient,
-    getUCSchedule,
+    getUCSocial,
     getClients,
     client,
     getUserlist,
     userlist,
-    getSchedulesByAssignedId,
+    getSocialsByAssignedId,
     getCampaigns,
     campaigns,
   } = useAppContext()
 
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [selectedDateEdit, setSelectedDateEdit] = useState(new Date())
-  const [edmTitle, setEdmTitle] = useState()
+  const [socialTitle, setSocialTitle] = useState()
   const [audience, setAudience] = useState()
   const [clientID, setClientID] = useState()
   const [clientIDEdit, setClientIDEdit] = useState()
   const [campaignIDEdit, setCampaignIDEdit] = useState()
-  const [edmTitleEdit, setEdmTitleEdit] = useState()
+  const [socialTitleEdit, setSocialTitleEdit] = useState()
   const [audienceEdit, setAudienceEdit] = useState()
-  const [linkedEdmEdit, setLinkedEdmEdit] = useState()
+  const [linkedSocialEdit, setLinkedSocialEdit] = useState()
   const [editingRowId, setEditingRowId] = useState(null)
   const [isEditingRow, setIsEditingRow] = useState(false)
   const [editedRowId, setEditedRowId] = useState(null)
@@ -148,7 +148,7 @@ const Listschedule = () => {
   }
   const handleMenuItemClick = (user) => {
     setSelectedUser(user)
-    getSchedulesByAssignedId(user._id)
+    getSocialsByAssignedId(user._id)
   }
 
   const changeClient = (cID, cName, all) => {
@@ -158,30 +158,30 @@ const Listschedule = () => {
     }
     // Check if the user is an admin
     if (user.isAdmin && all === 'all') {
-      // Trigger getSchedule() if the user is an admin
-      getSchedule()
+      // Trigger getSocial() if the user is an admin
+      getSocial()
     } else if (!user.isAdmin && all === 'all') {
-      // Trigger getUCSchedule() if the user is not an admin
-      getUCSchedule(lsUserClient.assUserClient)
+      // Trigger getUCSocial() if the user is not an admin
+      getUCSocial(lsUserClient.assUserClient)
     } else if (all !== 'all') {
-      // Trigger getIndSchedule() if the user is not an admin
-      getIndSchedule()
+      // Trigger getIndSocial() if the user is not an admin
+      getIndSocial()
     }
   }
 
   const pageLoadData = () => {
     // Check if the user is an admin
     if (user.isAdmin) {
-      // Trigger getSchedule() if the user is an admin
-      getSchedule()
+      // Trigger getSocial() if the user is an admin
+      getSocial()
     } else {
-      // Trigger getUCSchedule(lsUserClient.assUserClient) if the user is not an admin
+      // Trigger getUCSocial(lsUserClient.assUserClient) if the user is not an admin
       setTimeout(() => {
-        getUCSchedule(lsUserClient.assUserClient)
+        getUCSocial(lsUserClient.assUserClient)
       }, 500)
     }
     getCampaignSuggestions()
-    getEdmSuggestions()
+    getSocialSuggestions()
   }
 
   useEffect(() => {
@@ -211,8 +211,8 @@ const Listschedule = () => {
     const name = e.target.name
     const value = e.target.value
 
-    if (name === 'edmTitle') {
-      setEdmTitle(value)
+    if (name === 'socialTitle') {
+      setSocialTitle(value)
     } else if (name === 'audience') {
       setAudience(value)
     } else if (name === 'clientID') {
@@ -223,25 +223,25 @@ const Listschedule = () => {
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    const newSchedule = {
+    const newSocial = {
       campaignID,
-      edmTitle,
+      socialTitle,
       audience,
       date_to_send: selectedDate,
       clientID,
     }
-    console.log(newSchedule)
-    addSchedule(newSchedule)
+    console.log(newSocial)
+    addSocial(newSocial)
     changeClient(
       selectedClient.ClientID,
       selectedClient.ClientName,
       selectedClient.ClientID === '' ? 'all' : ''
     )
     getCampaignSuggestions()
-    getEdmSuggestions()
+    getSocialSuggestions()
 
     setCampaignID('')
-    setEdmTitle('')
+    setSocialTitle('')
     setAudience('')
     setClientID('')
 
@@ -255,8 +255,8 @@ const Listschedule = () => {
     setEditingRowId(row._id)
     setEditedRowId(row._id)
     setCampaignIDEdit(row.campaign_id)
-    setLinkedEdmEdit(row.linked_edm)
-    setEdmTitleEdit(row.edm_title)
+    setLinkedSocialEdit(row.linked_social)
+    setSocialTitleEdit(row.social_title)
     setAudienceEdit(row.audience)
     setClientIDEdit(row.client_id)
     setSelectedDateEdit(new Date(row.date_to_send))
@@ -266,36 +266,36 @@ const Listschedule = () => {
     setCampaignIDEdit(v.value)
   }
   const handleEditInput = (rowId, field, value) => {
-    const rowIndex = edmSchedule.findIndex((row) => row._id === rowId)
-    const updatedEdmSchedule = [...edmSchedule]
-    updatedEdmSchedule[rowIndex] = {
-      ...updatedEdmSchedule[rowIndex],
+    const rowIndex = socials.findIndex((row) => row._id === rowId)
+    const updatedsocials = [...socials]
+    updatedsocials[rowIndex] = {
+      ...updatedsocials[rowIndex],
       [field]: value,
     }
 
-    if (field === 'edmTitle') {
-      setEdmTitleEdit(value)
+    if (field === 'socialTitle') {
+      setSocialTitleEdit(value)
     } else if (field === 'audience') {
       setAudienceEdit(value)
-    } else if (field === 'linkedEdmEdit') {
-      setLinkedEdmEdit(value)
+    } else if (field === 'linkedSocialEdit') {
+      setLinkedSocialEdit(value)
     } else if (field === 'clientIDEdit') {
       setClientIDEdit(value)
     }
   }
 
   const handleSaveEdit = () => {
-    const editedSchedule = {
+    const editedSocial = {
       _id: editingRowId,
       campaign_id: campaignIDEdit,
-      edm_title: edmTitleEdit,
+      social_title: socialTitleEdit,
       audience: audienceEdit,
-      linked_edm: linkedEdmEdit,
+      linked_social: linkedSocialEdit,
       date_to_send: selectedDateEdit,
       client_id: clientIDEdit,
     }
 
-    editSchedule(editedSchedule)
+    editSocial(editedSocial)
 
     pageLoadData()
 
@@ -319,7 +319,7 @@ const Listschedule = () => {
           justify='space-between'
           w='100%'
         >
-          <Heading>EDM Schedule</Heading>
+          <Heading>Social Social</Heading>
           <Text>
             <strong>Date: {formattedDate}</strong>
           </Text>
@@ -510,11 +510,11 @@ const Listschedule = () => {
               </FormControl>
               <FormControl w='25%'>
                 <AutocompleteHelper
-                  suggestions={edmSuggestions}
-                  mainValue={edmTitle}
-                  callback={setEdmTitle}
-                  placeholder='Enter EDM title'
-                  name='edmTitle'
+                  suggestions={socialSuggestions}
+                  mainValue={socialTitle}
+                  callback={setSocialTitle}
+                  placeholder='Enter Social title'
+                  name='socialTitle'
                 />
               </FormControl>
               <FormControl w='25%'>
@@ -582,7 +582,7 @@ const Listschedule = () => {
                     fontSize='16px'
                     whiteSpace='normal'
                   >
-                    EDM Title
+                    Social Title
                   </Th>
                   <Th
                     w='15%'
@@ -606,9 +606,9 @@ const Listschedule = () => {
                   ></Th>
                 </Tr>
               </Thead>
-              {totalEdmSchedules > 0 ? (
+              {totalSocials > 0 ? (
                 <Tbody>
-                  {edmSchedule.map((row, index) => (
+                  {socials.map((row, index) => (
                     <Tr key={index}>
                       <Td
                         whiteSpace='normal'
@@ -726,9 +726,9 @@ const Listschedule = () => {
                           <Input
                             type='text'
                             placeholder='Enter EDM title'
-                            name='edmTitle'
+                            name='socialTitle'
                             borderRadius='2'
-                            value={edmTitleEdit}
+                            value={socialTitleEdit}
                             bg='white'
                             onChange={(e) =>
                               handleEditInput(
@@ -739,7 +739,7 @@ const Listschedule = () => {
                             }
                           />
                         ) : (
-                          row.edm_title
+                          row.social_title
                         )}
                       </Td>
                       <Td
@@ -774,8 +774,8 @@ const Listschedule = () => {
                           <ChakraSelect
                             bg='white'
                             placeholder='Select option'
-                            name='linkedEdmEdit'
-                            value={linkedEdmEdit}
+                            name='linkedSocialEdit'
+                            value={linkedSocialEdit}
                             onChange={(e) =>
                               handleEditInput(
                                 row._id,
@@ -785,7 +785,7 @@ const Listschedule = () => {
                             }
                           >
                             <option value='none'>None</option>
-                            {edmSchedule
+                            {socials
                               .filter((row3) => row._id !== row3._id)
                               .map((row3, index) => (
                                 <option
@@ -797,14 +797,14 @@ const Listschedule = () => {
                                     (clientFind) =>
                                       clientFind._id === row3.client_id
                                   )?.client_initials || 'N/A'}
-                                  ] {row3.campaign_title} - {row3.edm_title}
+                                  ] {row3.campaign_title} - {row3.social_title}
                                 </option>
                               ))}
                           </ChakraSelect>
                         ) : (
                           <>
-                            {edmSchedule.map((row2, index) => {
-                              if (row.linked_edm === row2._id) {
+                            {socials.map((row2, index) => {
+                              if (row.linked_social === row2._id) {
                                 const date1 = new Date(row2.date_to_send)
                                 const date2 = new Date(row.date_to_send)
 
@@ -851,7 +851,8 @@ const Listschedule = () => {
                                         (clientFind) =>
                                           clientFind._id === row2.client_id
                                       )?.client_initials || 'N/A'}
-                                      ] {row2.campaign_title} - {row2.edm_title}
+                                      ] {row2.campaign_title} -{' '}
+                                      {row2.social_title}
                                     </Text>
                                   </Text>
                                 )
@@ -922,11 +923,7 @@ const Listschedule = () => {
                               <MenuItem
                                 _hover={{ bg: 'red.100', color: 'red.900' }}
                                 onClick={() =>
-                                  handleDelete(
-                                    row._id,
-                                    'schedule',
-                                    getIndSchedule
-                                  )
+                                  handleDelete(row._id, 'Social', getIndSocial)
                                 }
                               >
                                 <Icon
@@ -962,4 +959,4 @@ const Listschedule = () => {
   )
 }
 
-export { Listschedule }
+export { Social }

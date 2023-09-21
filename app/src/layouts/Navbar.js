@@ -4,8 +4,10 @@ import { SearchBar } from './searchbar/SearchBar'
 import { FaBars, FaTimes } from 'react-icons/fa'
 import resonate from '../assets/images/r-logo.png'
 import resonate_ico from '../assets/images/Resonate-icon.png'
+import { useAppContext } from '../context/appContext'
 
-const Navbar = ({ navSize, toggleNavSize }) => {
+const Navbar = ({ navSize, toggleNavSize, location }) => {
+  const { hideSidebar } = useAppContext()
   return (
     <Flex
       bg='blackAlpha.800'
@@ -32,9 +34,10 @@ const Navbar = ({ navSize, toggleNavSize }) => {
           alignSelf='center'
           ml='auto' // Move the button to the right
           // color={colorMode === 'dark' ? 'white' : 'black'}
+          display={hideSidebar === true ? 'none' : ''}
         />
       </Flex>
-      <TopNavBar />
+      <TopNavBar location={location} />
     </Flex>
   )
 }
