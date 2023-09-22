@@ -646,6 +646,7 @@ const AppProvider = ({ children }) => {
         edm_title: scheduleData.edmTitle,
         audience: scheduleData.audience,
         client_id: client_id,
+        status: scheduleData.status,
       })
       dispatch({ type: CREATE_SCHEDULE_SUCCESS })
       dispatch({ type: CLEAR_VALUES })
@@ -773,7 +774,7 @@ const AppProvider = ({ children }) => {
         campaign_id: modifiedSchedule.campaign_id,
         edm_title: modifiedSchedule.edm_title,
         audience: modifiedSchedule.audience,
-
+        status: modifiedSchedule.status,
         client_id: modifiedSchedule.client_id,
       })
       dispatch({ type: EDIT_SCHEDULE_SUCCESS })
@@ -953,6 +954,7 @@ const AppProvider = ({ children }) => {
         campaign_id: SocialData.campaignID,
         social_title: SocialData.socialTitle,
         audience: SocialData.audience,
+        status: SocialData.status,
         client_id: client_id,
       })
       dispatch({ type: CREATE_SOCIAL_SUCCESS })
@@ -1066,6 +1068,7 @@ const AppProvider = ({ children }) => {
         campaign_id: modifiedSocial.campaign_id,
         social_title: modifiedSocial.social_title,
         audience: modifiedSocial.audience,
+        status: modifiedSocial.status,
 
         client_id: modifiedSocial.client_id,
       })

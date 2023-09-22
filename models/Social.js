@@ -21,6 +21,7 @@ const SocialSchema = new mongoose.Schema({
     ref: 'Schedule', // Reference to the Client model
     required: false,
   },
+  status: { type: String },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   createdBy: {

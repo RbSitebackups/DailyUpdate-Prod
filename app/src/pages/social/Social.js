@@ -36,7 +36,12 @@ import { MdSave } from 'react-icons/md'
 import { HiOutlineCalendar } from 'react-icons/hi2'
 import { BsChevronDown, BsChevronUp } from 'react-icons/bs'
 import { FiRefreshCw } from 'react-icons/fi'
-import { DialogHelper, AutocompleteHelper, AlertHelper } from '../../components'
+import {
+  DialogHelper,
+  AutocompleteHelper,
+  AlertHelper,
+  CustomSelect,
+} from '../../components'
 import moment from 'moment'
 import Select from 'react-select'
 import { SlRefresh } from 'react-icons/sl'
@@ -79,8 +84,8 @@ const Social = () => {
     campaigns,
   } = useAppContext()
 
-  const [selectedDate, setSelectedDate] = useState(new Date())
-  const [selectedDateEdit, setSelectedDateEdit] = useState(new Date())
+  const [selectedDate, setSelectedDate] = useState()
+  const [selectedDateEdit, setSelectedDateEdit] = useState()
   const [socialTitle, setSocialTitle] = useState()
   const [audience, setAudience] = useState()
   const [clientID, setClientID] = useState()
@@ -99,6 +104,8 @@ const Social = () => {
   const [campaignID, setCampaignID] = useState(null)
   const lsUserClient = JSON.parse(localStorage.getItem('userClient'))
   const [filteredCampaigns, setFilteredCampaigns] = useState([])
+  const [status, setStatus] = useState()
+  const [statusEdit, setStatusEdit] = useState()
 
   // Function to filter campaigns based on client
   const filterCampaignsByClient = (clientIdToFilter) => {
@@ -218,6 +225,8 @@ const Social = () => {
     } else if (name === 'clientID') {
       setClientID(value)
       filterCampaignsByClient(value) // Trigger filter function
+    } else if (name === 'status') {
+      setStatus(value)
     }
   }
   const handleSubmit = (e) => {
@@ -229,6 +238,7 @@ const Social = () => {
       audience,
       date_to_send: selectedDate,
       clientID,
+      status,
     }
     console.log(newSocial)
     addSocial(newSocial)
@@ -259,6 +269,7 @@ const Social = () => {
     setSocialTitleEdit(row.social_title)
     setAudienceEdit(row.audience)
     setClientIDEdit(row.client_id)
+    setStatusEdit(row.status)
     setSelectedDateEdit(new Date(row.date_to_send))
   }
 
@@ -281,6 +292,8 @@ const Social = () => {
       setLinkedSocialEdit(value)
     } else if (field === 'clientIDEdit') {
       setClientIDEdit(value)
+    } else if (field === 'statusEdit') {
+      setStatusEdit(value)
     }
   }
 
@@ -293,6 +306,7 @@ const Social = () => {
       linked_social: linkedSocialEdit,
       date_to_send: selectedDateEdit,
       client_id: clientIDEdit,
+      status: statusEdit,
     }
 
     editSocial(editedSocial)
@@ -450,7 +464,7 @@ const Social = () => {
           <form onSubmit={handleSubmit}>
             <Flex gap={8}>
               {selectedClient.ClientName === '' && (
-                <FormControl w='20%'>
+                <FormControl w='13%'>
                   <ChakraSelect
                     placeholder='Select Client'
                     onChange={handleInput}
@@ -470,7 +484,23 @@ const Social = () => {
                   </ChakraSelect>
                 </FormControl>
               )}
-              <FormControl w='20%'>
+              <FormControl w='25%'>
+                <Select
+                  placeholder='Select campaign'
+                  isSearchable={true}
+                  name='campaignID'
+                  options={
+                    filteredCampaigns &&
+                    filteredCampaigns.map((campaign) => ({
+                      label: campaign.campaign_title,
+                      value: campaign._id,
+                    }))
+                  }
+                  onChange={handleChange}
+                  styles={customStyles}
+                />
+              </FormControl>
+              <FormControl w='25%'>
                 <InputGroup w='100%'>
                   <DatePicker
                     selected={selectedDate}
@@ -479,6 +509,7 @@ const Social = () => {
                     dateFormat='dd/MM/yyyy hh:mm'
                     timeIntervals={15}
                     timeCaption='Time'
+                    placeholderText='Posted date'
                     filterDate={isWeekday}
                     borderRadius='2'
                     customInput={
@@ -495,36 +526,33 @@ const Social = () => {
                   </InputRightAddon>
                 </InputGroup>
               </FormControl>
-              <FormControl w='30%'>
-                <Select
-                  placeholder='Select campaign'
-                  isSearchable={true}
-                  name='campaignID'
-                  options={filteredCampaigns.map((campaign) => ({
-                    label: campaign.campaign_title,
-                    value: campaign._id,
-                  }))}
-                  onChange={handleChange}
-                  styles={customStyles}
-                />
-              </FormControl>
-              <FormControl w='25%'>
+
+              <FormControl w='21%'>
                 <AutocompleteHelper
                   suggestions={socialSuggestions}
                   mainValue={socialTitle}
                   callback={setSocialTitle}
-                  placeholder='Enter Social title'
+                  placeholder='Social title'
                   name='socialTitle'
                 />
               </FormControl>
-              <FormControl w='25%'>
+              <FormControl w='18%'>
                 <Input
                   type='text'
-                  placeholder='Enter audience'
+                  placeholder='Audience'
                   name='audience'
                   value={audience}
                   onChange={handleInput}
                   borderRadius='2'
+                />
+              </FormControl>
+              <FormControl w='11%'>
+                <CustomSelect
+                  placeholder='Status'
+                  name='status'
+                  value={status}
+                  options={['Post Published', 'Post Drafted']}
+                  onValueChange={(value) => setStatus(value)}
                 />
               </FormControl>
               <FormControl w='3%'>
@@ -569,7 +597,7 @@ const Social = () => {
                     Date & Time
                   </Th>
                   <Th
-                    w='25%'
+                    w='20%'
                     color='white'
                     fontSize='16px'
                     whiteSpace='normal'
@@ -577,7 +605,7 @@ const Social = () => {
                     Campaign Title
                   </Th>
                   <Th
-                    w='20%'
+                    w='15%'
                     color='white'
                     fontSize='16px'
                     whiteSpace='normal'
@@ -591,6 +619,14 @@ const Social = () => {
                     whiteSpace='normal'
                   >
                     Audience
+                  </Th>
+                  <Th
+                    w='10%'
+                    color='white'
+                    fontSize='16px'
+                    whiteSpace='normal'
+                  >
+                    Status
                   </Th>
                   <Th
                     w='15%'
@@ -683,10 +719,7 @@ const Social = () => {
                           </Text>
                         )}
                       </Td>
-                      <Td
-                        w='15%'
-                        whiteSpace='normal'
-                      >
+                      <Td whiteSpace='normal'>
                         {isEditingRow && editedRowId === row._id ? (
                           <Select
                             placeholder='Select campaign'
@@ -718,10 +751,7 @@ const Social = () => {
                           </Text>
                         )}
                       </Td>
-                      <Td
-                        w='20%'
-                        whiteSpace='normal'
-                      >
+                      <Td whiteSpace='normal'>
                         {isEditingRow && editedRowId === row._id ? (
                           <Input
                             type='text'
@@ -742,10 +772,7 @@ const Social = () => {
                           row.social_title
                         )}
                       </Td>
-                      <Td
-                        w='20%'
-                        whiteSpace='normal'
-                      >
+                      <Td whiteSpace='normal'>
                         {isEditingRow && editedRowId === row._id ? (
                           <Input
                             type='text'
@@ -766,10 +793,21 @@ const Social = () => {
                           row.audience
                         )}
                       </Td>
-                      <Td
-                        w='20%'
-                        whiteSpace='normal'
-                      >
+                      <Td>
+                        {isEditingRow && editedRowId === row._id ? (
+                          <CustomSelect
+                            placeholder='Status'
+                            name='statusEdit'
+                            value={statusEdit}
+                            options={['Post Published', 'Post Drafted']}
+                            onValueChange={(value) => setStatusEdit(value)}
+                            bg='white'
+                          />
+                        ) : (
+                          row.status && row.status
+                        )}
+                      </Td>
+                      <Td whiteSpace='normal'>
                         {isEditingRow && editedRowId === row._id ? (
                           <ChakraSelect
                             bg='white'
@@ -862,10 +900,7 @@ const Social = () => {
                           </>
                         )}
                       </Td>
-                      <Td
-                        w='5%'
-                        textAlign='right'
-                      >
+                      <Td textAlign='right'>
                         {isEditingRow && editedRowId === row._id ? (
                           <>
                             <Tooltip
@@ -943,7 +978,7 @@ const Social = () => {
                 <Tbody>
                   <Tr>
                     <Td
-                      colSpan={7}
+                      colSpan={8}
                       textAlign='center'
                     >
                       <Text>No records found</Text>

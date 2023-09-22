@@ -18,7 +18,6 @@ const listSocial = async (req, res) => {
   })
 }
 const addSocial = async (req, res) => {
-  console.log(req.body)
   const { social_title } = req.body
   if (!social_title) {
     throw new BadRequestError('Please provide the value!')

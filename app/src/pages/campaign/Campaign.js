@@ -276,6 +276,8 @@ const Campaign = () => {
     setEditedRowId(null)
   }
 
+  const i = 0
+
   return (
     <Box
       p={{ base: 4, md: 8 }}
@@ -561,9 +563,9 @@ const Campaign = () => {
                 color='white'
               >
                 <Tr>
-                  <Th w='2%'></Th>
+                  <Th w='3%'></Th>
                   <Th
-                    w='5%'
+                    w='7%'
                     color='white'
                     fontSize='16px'
                     whiteSpace='normal'
@@ -572,23 +574,21 @@ const Campaign = () => {
                   </Th>
 
                   <Th
-                    w='30%'
+                    w='27%'
                     color='white'
                     fontSize='16px'
-                    whiteSpace='normal'
                   >
                     Campaign Title
                   </Th>
                   <Th
-                    w='15%'
+                    w='27%'
                     color='white'
                     fontSize='16px'
-                    whiteSpace='normal'
                   >
                     Description
                   </Th>
                   <Th
-                    w='15%'
+                    w='10%'
                     color='white'
                     fontSize='16px'
                     whiteSpace='normal'
@@ -596,7 +596,7 @@ const Campaign = () => {
                     Start Date
                   </Th>
                   <Th
-                    w='15%'
+                    w='10%'
                     color='white'
                     fontSize='16px'
                     whiteSpace='normal'
@@ -604,7 +604,7 @@ const Campaign = () => {
                     End Date
                   </Th>
                   <Th
-                    w='15%'
+                    w='10%'
                     color='white'
                     fontSize='16px'
                     whiteSpace='normal'
@@ -612,7 +612,7 @@ const Campaign = () => {
                     Event Date
                   </Th>
                   <Th
-                    w='5%'
+                    w='6%'
                     whiteSpace='normal'
                   ></Th>
                 </Tr>
@@ -665,7 +665,6 @@ const Campaign = () => {
                           </Td>
                           <Td
                             whiteSpace='normal'
-                            w='5%'
                             align='left'
                           >
                             {isEditingRow && editedRowId === row._id ? (
@@ -710,10 +709,7 @@ const Campaign = () => {
                             )}
                           </Td>
 
-                          <Td
-                            w='45%'
-                            whiteSpace='normal'
-                          >
+                          <Td whiteSpace='normal'>
                             {isEditingRow && editedRowId === row._id ? (
                               <Input
                                 type='text'
@@ -735,10 +731,7 @@ const Campaign = () => {
                             )}
                           </Td>
 
-                          <Td
-                            w='45%'
-                            whiteSpace='normal'
-                          >
+                          <Td whiteSpace='normal'>
                             {isEditingRow && editedRowId === row._id ? (
                               <Input
                                 type='text'
@@ -838,10 +831,7 @@ const Campaign = () => {
                               )
                             )}
                           </Td>
-                          <Td
-                            w='5%'
-                            textAlign='right'
-                          >
+                          <Td textAlign='right'>
                             {isEditingRow && editedRowId === row._id ? (
                               <>
                                 <Tooltip
@@ -923,60 +913,256 @@ const Campaign = () => {
                         {visibleRows[row._id] && (
                           <Tr>
                             <Td></Td>
-                            <Td></Td>
-                            <Td colSpan='2'>
-                              <Flex direction='row'>
-                                <Box flex='1'>
-                                  <strong>EDM</strong>
-                                  {hasEdmData ? (
-                                    edmSchedule
-                                      .filter(
-                                        (edm) =>
-                                          edm.campaign_id === row._id &&
-                                          edm.client_id === row.client_id
-                                      )
-                                      .map((edm, index) => (
-                                        <Flex
-                                          key={index}
-                                          gap='40px'
-                                        >
-                                          <Text>
-                                            {formatDate(edm.date_to_send)}
-                                          </Text>
-                                          <Text>{edm.edm_title}</Text>
-                                        </Flex>
-                                      ))
-                                  ) : (
-                                    <Text>No EDM schedule found</Text>
-                                  )}
-                                </Box>
-                                <Box flex='1'>
-                                  <strong>Social</strong>
-                                  {hasSocialData ? (
-                                    socials
-                                      .filter(
-                                        (social) =>
-                                          social.campaign_id === row._id &&
-                                          social.client_id === row.client_id
-                                      )
-                                      .map((social, index) => (
-                                        <Flex
-                                          key={index}
-                                          gap='40px'
-                                        >
-                                          <Text>
-                                            {formatDate(social.date_to_send)}
-                                          </Text>
-                                          <Text>{social.social_title}</Text>
-                                        </Flex>
-                                      ))
-                                  ) : (
-                                    <Text>No social schedule found</Text>
-                                  )}
-                                </Box>
-                              </Flex>
+                            <Td colSpan='7'>
+                              <Table
+                                variant='striped'
+                                colorScheme='blackAlpha'
+                                borderWidth='1px'
+                              >
+                                <Thead
+                                  bg='darkslategray'
+                                  color='white'
+                                >
+                                  <Tr>
+                                    <Th
+                                      w='5%'
+                                      color='white'
+                                      fontSize='16px'
+                                      whiteSpace='normal'
+                                    >
+                                      Type
+                                    </Th>
+                                    <Th
+                                      w='12%'
+                                      color='white'
+                                      fontSize='16px'
+                                      whiteSpace='normal'
+                                    >
+                                      Date & Time
+                                    </Th>
+                                    <Th
+                                      w='29%'
+                                      color='white'
+                                      fontSize='16px'
+                                      whiteSpace='normal'
+                                    >
+                                      Title
+                                    </Th>
+                                    <Th
+                                      w='25%'
+                                      color='white'
+                                      fontSize='16px'
+                                      whiteSpace='normal'
+                                    >
+                                      Audience
+                                    </Th>
+                                    <Th
+                                      w='10%'
+                                      color='white'
+                                      fontSize='16px'
+                                      whiteSpace='normal'
+                                    >
+                                      Status
+                                    </Th>
+                                    <Th
+                                      w='19%'
+                                      color='white'
+                                      fontSize='16px'
+                                      whiteSpace='normal'
+                                    >
+                                      Gap from previous
+                                    </Th>
+                                  </Tr>
+                                </Thead>
+                                <Tbody>
+                                  {edmSchedule
+                                    .filter(
+                                      (edm) =>
+                                        edm.campaign_id === row._id &&
+                                        edm.client_id === row.client_id
+                                    )
+                                    .map((edm, index) => (
+                                      <Tr key={index}>
+                                        <Td>EDM</Td>
+                                        <Td>{formatDate(edm.date_to_send)}</Td>
+                                        <Td>{edm.edm_title}</Td>
+                                        <Td>{edm.audience}</Td>
+                                        <Td>{edm.status}</Td>
+                                        <Td>
+                                          {edmSchedule.map((row2, index) => {
+                                            if (row.linked_edm === row2._id) {
+                                              const date1 = new Date(
+                                                row2.date_to_send
+                                              )
+                                              const date2 = new Date(
+                                                row.date_to_send
+                                              )
+
+                                              // Calculate the time difference in milliseconds
+                                              const timeDifference =
+                                                date2 - date1
+
+                                              // Calculate the calendar days difference
+                                              const calendarDaysDifference =
+                                                Math.floor(
+                                                  timeDifference /
+                                                    (1000 * 60 * 60 * 24)
+                                                )
+
+                                              // Calculate the business days difference (excluding weekends)
+
+                                              let businessDays = 0
+                                              const currentDate = new Date(
+                                                date1
+                                              )
+
+                                              while (currentDate <= date2) {
+                                                const dayOfWeek =
+                                                  currentDate.getDay()
+                                                if (
+                                                  dayOfWeek !== 0 &&
+                                                  dayOfWeek !== 6
+                                                ) {
+                                                  businessDays++
+                                                }
+                                                currentDate.setDate(
+                                                  currentDate.getDate() + 1
+                                                )
+                                              }
+
+                                              // Calculate the weeks difference
+                                              const weeksDifference =
+                                                Math.floor(
+                                                  calendarDaysDifference / 7
+                                                )
+
+                                              return (
+                                                <Text key={index}>
+                                                  <strong>
+                                                    {businessDays} BD |{' '}
+                                                    {calendarDaysDifference} CD
+                                                    | {weeksDifference} weeks
+                                                  </strong>{' '}
+                                                  <br />
+                                                  <Text
+                                                    fontSize='13px'
+                                                    color='gray.400'
+                                                  >
+                                                    [
+                                                    {client.find(
+                                                      (clientFind) =>
+                                                        clientFind._id ===
+                                                        row2.client_id
+                                                    )?.client_initials || 'N/A'}
+                                                    ] {row2.campaign_title} -{' '}
+                                                    {row2.edm_title}
+                                                  </Text>
+                                                </Text>
+                                              )
+                                            }
+                                            return null
+                                          })}
+                                        </Td>
+                                      </Tr>
+                                    ))}
+
+                                  {socials
+                                    .filter(
+                                      (social) =>
+                                        social.campaign_id === row._id &&
+                                        social.client_id === row.client_id
+                                    )
+                                    .map((social, index) => (
+                                      <Tr key={index}>
+                                        <Td>Social</Td>
+                                        <Td>
+                                          {formatDate(social.date_to_send)}
+                                        </Td>
+                                        <Td>{social.social_title}</Td>
+                                        <Td>{social.audience}</Td>
+                                        <Td>{social.status}</Td>
+                                        <Td>
+                                          {socials.map((row2, index) => {
+                                            if (
+                                              row.linked_social === row2._id
+                                            ) {
+                                              const date1 = new Date(
+                                                row2.date_to_send
+                                              )
+                                              const date2 = new Date(
+                                                row.date_to_send
+                                              )
+
+                                              // Calculate the time difference in milliseconds
+                                              const timeDifference =
+                                                date2 - date1
+
+                                              // Calculate the calendar days difference
+                                              const calendarDaysDifference =
+                                                Math.floor(
+                                                  timeDifference /
+                                                    (1000 * 60 * 60 * 24)
+                                                )
+
+                                              // Calculate the business days difference (excluding weekends)
+
+                                              let businessDays = 0
+                                              const currentDate = new Date(
+                                                date1
+                                              )
+
+                                              while (currentDate <= date2) {
+                                                const dayOfWeek =
+                                                  currentDate.getDay()
+                                                if (
+                                                  dayOfWeek !== 0 &&
+                                                  dayOfWeek !== 6
+                                                ) {
+                                                  businessDays++
+                                                }
+                                                currentDate.setDate(
+                                                  currentDate.getDate() + 1
+                                                )
+                                              }
+
+                                              // Calculate the weeks difference
+                                              const weeksDifference =
+                                                Math.floor(
+                                                  calendarDaysDifference / 7
+                                                )
+
+                                              return (
+                                                <Text key={index}>
+                                                  <strong>
+                                                    {businessDays} BD |{' '}
+                                                    {calendarDaysDifference} CD
+                                                    | {weeksDifference} weeks
+                                                  </strong>{' '}
+                                                  <br />
+                                                  <Text
+                                                    fontSize='13px'
+                                                    color='gray.400'
+                                                  >
+                                                    [
+                                                    {client.find(
+                                                      (clientFind) =>
+                                                        clientFind._id ===
+                                                        row2.client_id
+                                                    )?.client_initials || 'N/A'}
+                                                    ] {row2.campaign_title} -{' '}
+                                                    {row2.social_title}
+                                                  </Text>
+                                                </Text>
+                                              )
+                                            }
+                                            return null
+                                          })}
+                                        </Td>
+                                      </Tr>
+                                    ))}
+                                </Tbody>
+                              </Table>
                             </Td>
-                            <Td></Td>
                           </Tr>
                         )}
                       </>
@@ -987,7 +1173,7 @@ const Campaign = () => {
                 <Tbody>
                   <Tr>
                     <Td
-                      colSpan={7}
+                      colSpan={8}
                       textAlign='center'
                     >
                       <Text>No records found</Text>

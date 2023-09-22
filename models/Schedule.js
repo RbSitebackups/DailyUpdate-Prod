@@ -14,7 +14,7 @@ const ScheduleSchema = new mongoose.Schema({
   },
   edm_title: { type: String },
   audience: { type: String },
-  sdr_report_update: { type: String },
+  status: { type: String },
   edm_link: { type: String },
   linked_edm: {
     type: mongoose.Schema.Types.ObjectId,

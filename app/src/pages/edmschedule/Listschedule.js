@@ -36,7 +36,12 @@ import { MdSave } from 'react-icons/md'
 import { HiOutlineCalendar } from 'react-icons/hi2'
 import { BsChevronDown, BsChevronUp } from 'react-icons/bs'
 import { FiRefreshCw } from 'react-icons/fi'
-import { DialogHelper, AutocompleteHelper, AlertHelper } from '../../components'
+import {
+  DialogHelper,
+  AutocompleteHelper,
+  AlertHelper,
+  CustomSelect,
+} from '../../components'
 import moment from 'moment'
 import Select from 'react-select'
 import { SlRefresh } from 'react-icons/sl'
@@ -79,8 +84,8 @@ const Listschedule = () => {
     campaigns,
   } = useAppContext()
 
-  const [selectedDate, setSelectedDate] = useState(new Date())
-  const [selectedDateEdit, setSelectedDateEdit] = useState(new Date())
+  const [selectedDate, setSelectedDate] = useState()
+  const [selectedDateEdit, setSelectedDateEdit] = useState()
   const [edmTitle, setEdmTitle] = useState()
   const [audience, setAudience] = useState()
   const [clientID, setClientID] = useState()
@@ -89,6 +94,8 @@ const Listschedule = () => {
   const [edmTitleEdit, setEdmTitleEdit] = useState()
   const [audienceEdit, setAudienceEdit] = useState()
   const [linkedEdmEdit, setLinkedEdmEdit] = useState()
+  const [status, setStatus] = useState()
+  const [statusEdit, setStatusEdit] = useState()
   const [editingRowId, setEditingRowId] = useState(null)
   const [isEditingRow, setIsEditingRow] = useState(false)
   const [editedRowId, setEditedRowId] = useState(null)
@@ -218,6 +225,8 @@ const Listschedule = () => {
     } else if (name === 'clientID') {
       setClientID(value)
       filterCampaignsByClient(value) // Trigger filter function
+    } else if (name === 'status') {
+      setStatus(value)
     }
   }
   const handleSubmit = (e) => {
@@ -229,8 +238,9 @@ const Listschedule = () => {
       audience,
       date_to_send: selectedDate,
       clientID,
+      status,
     }
-    console.log(newSchedule)
+
     addSchedule(newSchedule)
     changeClient(
       selectedClient.ClientID,
@@ -259,6 +269,7 @@ const Listschedule = () => {
     setEdmTitleEdit(row.edm_title)
     setAudienceEdit(row.audience)
     setClientIDEdit(row.client_id)
+    setStatusEdit(row.status)
     setSelectedDateEdit(new Date(row.date_to_send))
   }
 
@@ -281,6 +292,8 @@ const Listschedule = () => {
       setLinkedEdmEdit(value)
     } else if (field === 'clientIDEdit') {
       setClientIDEdit(value)
+    } else if (field === 'statusEdit') {
+      setStatusEdit(value)
     }
   }
 
@@ -293,6 +306,7 @@ const Listschedule = () => {
       linked_edm: linkedEdmEdit,
       date_to_send: selectedDateEdit,
       client_id: clientIDEdit,
+      status: statusEdit,
     }
 
     editSchedule(editedSchedule)
@@ -448,9 +462,9 @@ const Listschedule = () => {
         </Flex>
         {isFormVisible && (
           <form onSubmit={handleSubmit}>
-            <Flex gap={8}>
+            <Flex gap={4}>
               {selectedClient.ClientName === '' && (
-                <FormControl w='20%'>
+                <FormControl w='13%'>
                   <ChakraSelect
                     placeholder='Select Client'
                     onChange={handleInput}
@@ -470,7 +484,23 @@ const Listschedule = () => {
                   </ChakraSelect>
                 </FormControl>
               )}
-              <FormControl w='20%'>
+              <FormControl w='25%'>
+                <Select
+                  placeholder='Select campaign'
+                  isSearchable={true}
+                  name='campaignID'
+                  options={
+                    filteredCampaigns &&
+                    filteredCampaigns.map((campaign) => ({
+                      label: campaign.campaign_title,
+                      value: campaign._id,
+                    }))
+                  }
+                  onChange={handleChange}
+                  styles={customStyles}
+                />
+              </FormControl>
+              <FormControl w='25%'>
                 <InputGroup w='100%'>
                   <DatePicker
                     selected={selectedDate}
@@ -481,6 +511,7 @@ const Listschedule = () => {
                     timeCaption='Time'
                     filterDate={isWeekday}
                     borderRadius='2'
+                    placeholderText='EDM Blast Date'
                     customInput={
                       <Input
                         onChange={handleInput}
@@ -495,36 +526,33 @@ const Listschedule = () => {
                   </InputRightAddon>
                 </InputGroup>
               </FormControl>
-              <FormControl w='30%'>
-                <Select
-                  placeholder='Select campaign'
-                  isSearchable={true}
-                  name='campaignID'
-                  options={filteredCampaigns.map((campaign) => ({
-                    label: campaign.campaign_title,
-                    value: campaign._id,
-                  }))}
-                  onChange={handleChange}
-                  styles={customStyles}
-                />
-              </FormControl>
-              <FormControl w='25%'>
+
+              <FormControl w='21%'>
                 <AutocompleteHelper
                   suggestions={edmSuggestions}
                   mainValue={edmTitle}
                   callback={setEdmTitle}
-                  placeholder='Enter EDM title'
+                  placeholder='EDM title'
                   name='edmTitle'
                 />
               </FormControl>
-              <FormControl w='25%'>
+              <FormControl w='18%'>
                 <Input
                   type='text'
-                  placeholder='Enter audience'
+                  placeholder='Audience'
                   name='audience'
                   value={audience}
                   onChange={handleInput}
                   borderRadius='2'
+                />
+              </FormControl>
+              <FormControl w='11%'>
+                <CustomSelect
+                  placeholder='Status'
+                  name='status'
+                  value={status}
+                  options={['EDM Sent', 'EDM Drafted', 'EDM Scheduled']}
+                  onValueChange={(value) => setStatus(value)}
                 />
               </FormControl>
               <FormControl w='3%'>
@@ -569,7 +597,7 @@ const Listschedule = () => {
                     Date & Time
                   </Th>
                   <Th
-                    w='25%'
+                    w='20%'
                     color='white'
                     fontSize='16px'
                     whiteSpace='normal'
@@ -577,7 +605,7 @@ const Listschedule = () => {
                     Campaign Title
                   </Th>
                   <Th
-                    w='20%'
+                    w='15%'
                     color='white'
                     fontSize='16px'
                     whiteSpace='normal'
@@ -591,6 +619,14 @@ const Listschedule = () => {
                     whiteSpace='normal'
                   >
                     Audience
+                  </Th>
+                  <Th
+                    w='10%'
+                    color='white'
+                    fontSize='16px'
+                    whiteSpace='normal'
+                  >
+                    Status
                   </Th>
                   <Th
                     w='15%'
@@ -612,7 +648,6 @@ const Listschedule = () => {
                     <Tr key={index}>
                       <Td
                         whiteSpace='normal'
-                        w='5%'
                         align='left'
                       >
                         {isEditingRow && editedRowId === row._id ? (
@@ -683,10 +718,7 @@ const Listschedule = () => {
                           </Text>
                         )}
                       </Td>
-                      <Td
-                        w='15%'
-                        whiteSpace='normal'
-                      >
+                      <Td whiteSpace='normal'>
                         {isEditingRow && editedRowId === row._id ? (
                           <Select
                             placeholder='Select campaign'
@@ -718,10 +750,7 @@ const Listschedule = () => {
                           </Text>
                         )}
                       </Td>
-                      <Td
-                        w='20%'
-                        whiteSpace='normal'
-                      >
+                      <Td whiteSpace='normal'>
                         {isEditingRow && editedRowId === row._id ? (
                           <Input
                             type='text'
@@ -742,10 +771,7 @@ const Listschedule = () => {
                           row.edm_title
                         )}
                       </Td>
-                      <Td
-                        w='20%'
-                        whiteSpace='normal'
-                      >
+                      <Td whiteSpace='normal'>
                         {isEditingRow && editedRowId === row._id ? (
                           <Input
                             type='text'
@@ -766,10 +792,25 @@ const Listschedule = () => {
                           row.audience
                         )}
                       </Td>
-                      <Td
-                        w='20%'
-                        whiteSpace='normal'
-                      >
+                      <Td>
+                        {isEditingRow && editedRowId === row._id ? (
+                          <CustomSelect
+                            placeholder='Status'
+                            name='statusEdit'
+                            value={statusEdit}
+                            options={[
+                              'EDM Sent',
+                              'EDM Drafted',
+                              'EDM Scheduled',
+                            ]}
+                            onValueChange={(value) => setStatusEdit(value)}
+                            bg='white'
+                          />
+                        ) : (
+                          row.status && row.status
+                        )}
+                      </Td>
+                      <Td whiteSpace='normal'>
                         {isEditingRow && editedRowId === row._id ? (
                           <ChakraSelect
                             bg='white'
@@ -861,10 +902,7 @@ const Listschedule = () => {
                           </>
                         )}
                       </Td>
-                      <Td
-                        w='5%'
-                        textAlign='right'
-                      >
+                      <Td textAlign='right'>
                         {isEditingRow && editedRowId === row._id ? (
                           <>
                             <Tooltip
@@ -946,7 +984,7 @@ const Listschedule = () => {
                 <Tbody>
                   <Tr>
                     <Td
-                      colSpan={7}
+                      colSpan={8}
                       textAlign='center'
                     >
                       <Text>No records found</Text>
